@@ -12,7 +12,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
 
 # Main library
-add_library(${PROJECT_NAME}_lib ${SRC_FILES})
+
+file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS include/*.hpp)
+
+add_library(${PROJECT_NAME}_lib 
+    ${SRC_FILES} 
+    ${HEADER_FILES}
+)
 
 # Header files
 target_include_directories(${PROJECT_NAME}_lib
