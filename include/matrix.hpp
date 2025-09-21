@@ -1,9 +1,8 @@
 #pragma once
 
 /*
- * This code was copied from
+ * This code was copied from the following repo as a matrix reader:
  * https://github.com/UAlex322/GraphAlgo/blob/master/include/matrix.h
- * as a matrix reader.
 */
 
 #include <cstdlib>

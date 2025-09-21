@@ -26,9 +26,6 @@ target_include_directories(${PROJECT_NAME}_library
         ${CMAKE_SOURCE_DIR}/include
 )
 
-# External dependencies
-add_subdirectory(external)
-
 # Apps
 add_executable(${PROJECT_NAME}_app apps/main.cpp)
 target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME}_library)

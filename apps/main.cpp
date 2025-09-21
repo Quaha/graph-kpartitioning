@@ -1,12 +1,10 @@
-#include "matrix.hpp"
+#include "graph.hpp"
 
 int main() {
 
-    spMtx<long double> mt("../data/add20.mtx", "mtx");
+    spMtx<real_t> mt("../data/add20.mtx", "mtx");
     
-    mt.print_crs();
-
-    
+    Graph<real_t, int_t> g(mt);
 
     return 0;
 }
