@@ -1,7 +1,10 @@
-#include "graph/graph_reader.hpp"
-#include "graph_partition/partitioner.hpp"
+#include "matrix.hpp"
 
 int main() {
+
+    spMtx<long double> mt("../data/add20.mtx", "mtx");
+    
+    mt.print_crs();
 
     
 
