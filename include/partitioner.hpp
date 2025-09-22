@@ -6,7 +6,7 @@ void getGraphKPartition(
 	int_t number_of_parts,
 	real_t* required_ratio,
 	real_t* acceptable_deviation,
-	EWeightType* edge_cut,
+	EWeightType& edge_cut,
 	int_t* partition
 ) {
 

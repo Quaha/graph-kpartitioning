@@ -26,10 +26,10 @@ private:
 	// vertex (n + 1 element where xadj[n] = m)
 	VertexType* xadj = nullptr;
 
-	// vertex weights (all weights are equal to 1 at nullptr)
+	// vertex weights
 	VWeightType* vweights = nullptr;
 
-	// edge weights (all weights are equal to 1 at nullptr)
+	// edge weights
 	EWeightType* eweights = nullptr;
 
 
@@ -40,6 +40,13 @@ public:
 		n = matrix.m;
 		m = matrix.nz;
 
+		if (m > 0) {
+			adjncy = new VertexType[m];
+			for (size_t i = 0; i < m; i++) {
+				adjncy[i] = static_cast<VertexType>(matrix.Col[i]);
+			}
+		}
+
 		if (n > 0) {
 			xadj_capacity = n + 1;
 			xadj = new VertexType[xadj_capacity];
@@ -48,17 +55,24 @@ public:
 			}
 		}
 
-		if (m > 0) {
-			adjncy = new VertexType[m];
-			for (size_t i = 0; i < m; i++) {
-				adjncy[i] = static_cast<VertexType>(matrix.Col[i]);
+		if (n > 0) {
+			vweights = new VWeightType[n];
+			for (size_t i = 0; i < n; i++) {
+				vweights[i] = 1;
 			}
 		}
 
-		if (matrix.Val && m > 0) {
+		if (m > 0) {
 			eweights = new EWeightType[m];
-			for (size_t i = 0; i < m; i++) {
-				eweights[i] = matrix.Val[i];
+			if (matrix.Val != nullptr) {
+				for (size_t i = 0; i < m; i++) {
+					eweights[i] = matrix.Val[i];
+				}
+			}
+			else {
+				for (size_t i = 0; i < m; i++) {
+					eweights[i] = 1;
+				}
 			}
 		}
 	}
@@ -83,14 +97,14 @@ public:
 			}
 		}
 
-		if (other.vweights != nullptr && n > 0) {
+		if (n > 0) {
 			vweights = new VWeightType[n];
 			for (size_t i = 0; i < n; ++i) {
 				vweights[i] = other.vweights[i];
 			}
 		}
 
-		if (other.eweights != nullptr && m > 0) {
+		if (m > 0) {
 			eweights = new EWeightType[m];
 			for (size_t i = 0; i < m; ++i) {
 				eweights[i] = other.eweights[i];
@@ -149,14 +163,14 @@ public:
 			}
 		}
 
-		if (other.vweights != nullptr && n > 0) {
+		if (n > 0) {
 			vweights = new VWeightType[n];
 			for (size_t i = 0; i < n; ++i) {
 				vweights[i] = other.vweights[i];
 			}
 		}
 
-		if (other.eweights != nullptr && m > 0) {
+		if (m > 0) {
 			eweights = new EWeightType[m];
 			for (size_t i = 0; i < m; ++i) {
 				eweights[i] = other.eweights[i];
