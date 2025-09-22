@@ -1,3 +1,5 @@
+#pragma once
+
 #include "matrix.hpp"
 
 using idx_t = long long;
@@ -39,6 +41,7 @@ private:
 
 public:
 
+	// requires symmetric matrix
 	Graph(const spMtx<EWeightType>& matrix) {
 
 		n = static_cast<idx_t>(matrix.m);

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "graph.hpp"
 
 class Partitioner {
@@ -9,10 +11,10 @@ class Partitioner {
 public:
 
 	template <typename EWeightType, typename VWeightType>
-	void getGraphKPartition(
+	static void getGraphKPartition(
 		const Graph<EWeightType, VWeightType>& graph,
 		const idx_t number_of_parts,
-		const real_t* required_ratio,
+		const real_t* required_ratios,
 		const real_t* acceptable_deviation,
 		idx_t* partition,
 		EWeightType& edge_cut
