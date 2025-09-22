@@ -1,15 +1,24 @@
 #include "graph.hpp"
 
-template <typename EWeightType, typename VWeightType>
-void getGraphKPartition(
-	const Graph<EWeightType, VWeightType>& graph,
-	int_t number_of_parts,
-	real_t* required_ratio,
-	real_t* acceptable_deviation,
-	EWeightType& edge_cut,
-	int_t* partition
-) {
+class Partitioner {
 
-	// code
+	/*
+	 * This class finds the partition of a graph into a given number of parts.
+	*/
 
-}
+public:
+
+	template <typename EWeightType, typename VWeightType>
+	void getGraphKPartition(
+		const Graph<EWeightType, VWeightType>& graph,
+		const idx_t number_of_parts,
+		const real_t* required_ratio,
+		const real_t* acceptable_deviation,
+		idx_t* partition,
+		EWeightType& edge_cut
+	) {
+
+		// code
+
+	}
+};

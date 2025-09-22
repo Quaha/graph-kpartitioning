@@ -1,9 +1,10 @@
 #include "matrix.hpp"
 
-using int_t = long long;
+using idx_t = long long;
 using real_t = long double;
 
-using VertexType = int_t;
+class Partitioner;
+class PartitionMetrics;
 
 template <typename EWeightType, typename VWeightType>
 class Graph {
@@ -12,19 +13,22 @@ class Graph {
 	 * This class stores the graph in CRS format.
 	*/
 
+	friend class Partitioner;
+	friend class PartitionMetrics;
+
 private:
 
-	size_t n = 0; // count of vertices
-	size_t m = 0; // count of edges
+	idx_t n = 0; // count of vertices
+	idx_t m = 0; // count of edges
 
 	// sequential storage of adjacent vertices
-	VertexType* adjncy = nullptr;
+	idx_t* adjncy = nullptr;
 
 	size_t xadj_capacity = 0;
 
 	// indexes of the beginning of the adjacency list of each
 	// vertex (n + 1 element where xadj[n] = m)
-	VertexType* xadj = nullptr;
+	idx_t* xadj = nullptr;
 
 	// vertex weights
 	VWeightType* vweights = nullptr;
@@ -37,21 +41,21 @@ public:
 
 	Graph(const spMtx<EWeightType>& matrix) {
 
-		n = matrix.m;
-		m = matrix.nz;
+		n = static_cast<idx_t>(matrix.m);
+		m = static_cast<idx_t>(matrix.nz);
 
 		if (m > 0) {
-			adjncy = new VertexType[m];
+			adjncy = new idx_t[m];
 			for (size_t i = 0; i < m; i++) {
-				adjncy[i] = static_cast<VertexType>(matrix.Col[i]);
+				adjncy[i] = static_cast<idx_t>(matrix.Col[i]);
 			}
 		}
 
 		if (n > 0) {
 			xadj_capacity = n + 1;
-			xadj = new VertexType[xadj_capacity];
+			xadj = new idx_t[xadj_capacity];
 			for (size_t i = 0; i < xadj_capacity; i++) {
-				xadj[i] = static_cast<VertexType>(matrix.Rst[i]);
+				xadj[i] = static_cast<idx_t>(matrix.Rst[i]);
 			}
 		}
 
@@ -84,14 +88,14 @@ public:
 		xadj_capacity = other.xadj_capacity;
 
 		if (m > 0) {
-			adjncy = new VertexType[m];
+			adjncy = new idx_t[m];
 			for (size_t i = 0; i < m; ++i) {
 				adjncy[i] = other.adjncy[i];
 			}
 		}
 
 		if (xadj_capacity > 0) {
-			xadj = new VertexType[xadj_capacity];
+			xadj = new idx_t[xadj_capacity];
 			for (size_t i = 0; i < xadj_capacity; ++i) {
 				xadj[i] = other.xadj[i];
 			}
@@ -150,14 +154,14 @@ public:
 		xadj_capacity = other.xadj_capacity;
 
 		if (m > 0) {
-			adjncy = new VertexType[m];
+			adjncy = new idx_t[m];
 			for (size_t i = 0; i < m; ++i) {
 				adjncy[i] = other.adjncy[i];
 			}
 		}
 
 		if (xadj_capacity > 0) {
-			xadj = new VertexType[xadj_capacity];
+			xadj = new idx_t[xadj_capacity];
 			for (size_t i = 0; i < xadj_capacity; ++i) {
 				xadj[i] = other.xadj[i];
 			}
@@ -220,11 +224,21 @@ public:
 		delete[] eweights;
 	}
 
-	size_t getVerticesCount() const noexcept {
+	idx_t getVerticesCount() const noexcept {
 		return n;
 	}
 
-	size_t getEdgesCount() const noexcept {
+	idx_t getEdgesCount() const noexcept {
 		return m;
+	}
+
+	void print() const {
+		for (idx_t u = 0; u < n; ++u) {
+			for (idx_t i = xadj[u]; i < xadj[u + 1]; ++i) {
+				idx_t v = adjncy[i];
+				EWeightType w = eweights[i];
+				std::cout << u << " " << v << " " << w << "\n";
+			}
+		}
 	}
 };

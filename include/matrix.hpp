@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * This code was copied from the following repo as a matrix reader:
+ * This code was copied from the following repository as a matrix reader:
  * https://github.com/UAlex322/GraphAlgo/blob/master/include/matrix.h
 */
 
