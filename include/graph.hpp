@@ -38,12 +38,9 @@ private:
 	// edge weights
 	EWeightType* eweights = nullptr;
 
+private:
 
-public:
-
-	// requires symmetric matrix
-	Graph(const spMtx<EWeightType>& matrix) {
-
+	void buildGraph(const spMtx<EWeightType>& matrix) {
 		n = static_cast<idx_t>(matrix.m);
 		m = static_cast<idx_t>(matrix.nz);
 
@@ -82,6 +79,19 @@ public:
 				}
 			}
 		}
+	}
+
+public:
+
+	// requires symmetric matrix
+	Graph(const spMtx<EWeightType>& matrix) {
+		buildGraph(matrix);
+	}
+
+	// requires symmetric matrix
+	Graph(const std::string& file_name, const std::string& format) {
+		spMtx<EWeightType> matrix(file_name.c_str(), format);
+		buildGraph(matrix);
 	}
 
 	Graph(const Graph& other) {

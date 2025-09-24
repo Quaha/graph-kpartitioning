@@ -8,12 +8,8 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Collecting all cpp-files from src/
-file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
-
-# Main library
-
-file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS include/*.hpp)
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp external/matrix/*.cpp)
+file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS include/*.hpp external/matrix/*.hpp)
 
 add_library(${PROJECT_NAME}_library 
     ${SRC_FILES} 
@@ -24,6 +20,7 @@ add_library(${PROJECT_NAME}_library
 target_include_directories(${PROJECT_NAME}_library
     PUBLIC
         ${CMAKE_SOURCE_DIR}/include
+	${CMAKE_SOURCE_DIR}/external/matrix
 )
 
 # Apps
