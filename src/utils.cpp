@@ -1,4 +1,4 @@
-#include "io_utils.hpp"
+#include "utils.hpp"
 
 std::vector<std::string> getMtxFileNames(const std::string& folder) {
     std::vector<std::string> file_names(0);

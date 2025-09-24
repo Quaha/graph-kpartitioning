@@ -13,7 +13,7 @@ int main() {
     
     Graph<real_t, idx_t> g(mt);
 
-    g.print();
+    g.printEdges();
 
     real_t mb, lb;
 

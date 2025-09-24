@@ -1,9 +1,7 @@
 #pragma once
 
 #include "matrix.hpp"
-
-using idx_t = long long;
-using real_t = long double;
+#include "utils.hpp"
 
 class Partitioner;
 class PartitionMetrics;
@@ -245,7 +243,7 @@ public:
 		return m;
 	}
 
-	void print() const {
+	void printEdges() const {
 		for (idx_t u = 0; u < n; ++u) {
 			for (idx_t i = xadj[u]; i < xadj[u + 1]; ++i) {
 				idx_t v = adjncy[i];

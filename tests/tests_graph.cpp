@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "io_utils.hpp" 
+#include "utils.hpp" 
 #include "graph.hpp"
 
 const std::string DATA_BASE_PATH = "..\\..\\tests\\data\\";
