@@ -11,15 +11,15 @@ int main() {
 
     spMtx<real_t> mt("../data/b1_ss.mtx", "mtx");
     
-    Graph<real_t, idx_t> g(mt);
+    Graph<real_t, int_t> g(mt);
 
     g.printEdges();
 
     real_t mb, lb;
 
     real_t* ratios = new real_t[1]; ratios[0] = 1.0;
-    idx_t* parts = new idx_t[g.getVerticesCount()];
-    for (idx_t i = 0; i < g.getVerticesCount(); ++i) {
+    int_t* parts = new int_t[g.getVerticesCount()];
+    for (int_t i = 0; i < g.getVerticesCount(); ++i) {
         parts[i] = 0;
     }
 

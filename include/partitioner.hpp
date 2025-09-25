@@ -13,10 +13,9 @@ public:
 	template <typename EWeightType, typename VWeightType>
 	static void getGraphKPartition(
 		const Graph<EWeightType, VWeightType>& graph,
-		const idx_t number_of_parts,
-		const real_t* required_ratios,
-		const real_t* acceptable_deviation,
-		idx_t* partition,
+		const int_t k,
+		const real_t accuracy,
+		int_t* partition,
 		EWeightType& edge_cut
 	) {
 

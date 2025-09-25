@@ -14,19 +14,19 @@ class MetricsCrashTest : public ::testing::TestWithParam<std::string> {};
 INSTANTIATE_TEST_SUITE_P(
 	AllMtxFiles,
 	MetricsCrashTest,
-	::testing::ValuesIn(getMtxFileNames(DATA_BASE_PATH))
+	::testing::ValuesIn(getFileNames(DATA_BASE_PATH, "mtx"))
 );
 
 TEST_P(MetricsCrashTest, canCountEdgeCut) {
 
 	std::string file_name = GetParam();
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + file_name, "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + file_name, "mtx", true);
 
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::fill(partition, partition + g.getVerticesCount(), 0);
 
-	idx_t edge_cut;
+	int_t edge_cut;
 
 	EXPECT_NO_THROW(PartitionMetrics::getEdgeCut(g, partition, edge_cut));
 
@@ -35,12 +35,12 @@ TEST_P(MetricsCrashTest, canCountEdgeCut) {
 
 TEST(MetricsCountTest, getEdgeCutFullGraph) {
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx", true);
 
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::fill(partition, partition + g.getVerticesCount(), 0);
 
-	idx_t edge_cut;
+	int_t edge_cut;
 
 	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
 
@@ -51,15 +51,15 @@ TEST(MetricsCountTest, getEdgeCutFullGraph) {
 
 TEST(MetricsCountTest, getEdgeCutFullGraph2) {
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx", true);
 
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::fill(partition, partition + g.getVerticesCount(), 0);
 
 	partition[0] = 1;
 	partition[1] = 1;
 
-	idx_t edge_cut;
+	int_t edge_cut;
 
 	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
 
@@ -70,14 +70,14 @@ TEST(MetricsCountTest, getEdgeCutFullGraph2) {
 
 TEST(MetricsCountTest, getEdgeCutFullGraph3) {
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx", true);
 
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::fill(partition, partition + g.getVerticesCount(), 0);
 
 	partition[0] = 1;
 
-	idx_t edge_cut;
+	int_t edge_cut;
 
 	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
 
@@ -88,12 +88,12 @@ TEST(MetricsCountTest, getEdgeCutFullGraph3) {
 
 TEST(MetricsCountTest, getEdgeCutFullGraph4) {
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx", true);
 
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::iota(partition, partition + g.getVerticesCount(), 0);
 
-	idx_t edge_cut;
+	int_t edge_cut;
 
 	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
 
@@ -106,71 +106,58 @@ TEST_P(MetricsCrashTest, canCountBalances) {
 
 	std::string file_name = GetParam();
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + file_name, "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + file_name, "mtx");
 
-	idx_t number_of_parts = 1;
+	int_t number_of_parts = 1;
 
-	real_t* required_ratios = new real_t[number_of_parts];
-	required_ratios[0] = 1.0;
-
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::fill(partition, partition + g.getVerticesCount(), 0);
 
 	real_t* balances = new real_t[number_of_parts];
 
-	EXPECT_NO_THROW(PartitionMetrics::getBalances(g, 1, required_ratios, partition, balances));
+	EXPECT_NO_THROW(PartitionMetrics::getBalances(g, 1, partition, balances));
 
 	delete[] balances;
 	delete[] partition;
-	delete[] required_ratios;
 }
 
 TEST(MetricsCountTest, getBalancesFullGraph1) {
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
 
-	idx_t number_of_parts = 1;
+	int_t number_of_parts = 1;
 
-	real_t* required_ratios = new real_t[number_of_parts];
-	required_ratios[0] = 1.0;
-
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::fill(partition, partition + g.getVerticesCount(), 0);
 
 	real_t* balances = new real_t[number_of_parts];
 
-	PartitionMetrics::getBalances(g, number_of_parts, required_ratios, partition, balances);
+	PartitionMetrics::getBalances(g, number_of_parts,partition, balances);
 
-	EXPECT_NEAR(1.0L, balances[0], EPS);
+	EXPECT_NEAR(0.0L, balances[0], EPS);
 
 	delete[] balances;
 	delete[] partition;
-	delete[] required_ratios;
 }
 
 TEST(MetricsCountTest, getBalancesFullGraph2) {
 
-	Graph<idx_t, idx_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
+	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
 
-	idx_t number_of_parts = 2;
+	int_t number_of_parts = 2;
 
-	real_t* required_ratios = new real_t[number_of_parts];
-	required_ratios[0] = 0.8;
-	required_ratios[1] = 0.2;
-
-	idx_t* partition = new idx_t[g.getVerticesCount()];
+	int_t* partition = new int_t[g.getVerticesCount()];
 	std::fill(partition, partition + g.getVerticesCount(), 0);
 
 	partition[0] = 1;
 
 	real_t* balances = new real_t[number_of_parts];
 
-	PartitionMetrics::getBalances(g, number_of_parts, required_ratios, partition, balances);
+	PartitionMetrics::getBalances(g, number_of_parts, partition, balances);
 
-	EXPECT_NEAR(1.0L, balances[0], EPS);
-	EXPECT_NEAR(1.0L, balances[1], EPS);
+	EXPECT_NEAR(1.0L / 3.0L, balances[0], EPS);
+	EXPECT_NEAR(- 2.0L / 3.0L, balances[1], EPS);
 
 	delete[] balances;
 	delete[] partition;
-	delete[] required_ratios;
 }

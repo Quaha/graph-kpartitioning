@@ -18,17 +18,17 @@ class Graph {
 
 private:
 
-	idx_t n = 0; // count of vertices
-	idx_t m = 0; // count of edges
+	int_t n = 0; // count of vertices
+	int_t m = 0; // count of edges
 
 	// sequential storage of adjacent vertices
-	idx_t* adjncy = nullptr;
+	int_t* adjncy = nullptr;
 
 	size_t xadj_capacity = 0;
 
 	// indexes of the beginning of the adjacency list of each
 	// vertex (n + 1 element where xadj[n] = m)
-	idx_t* xadj = nullptr;
+	int_t* xadj = nullptr;
 
 	// vertex weights
 	VWeightType* vweights = nullptr;
@@ -38,22 +38,22 @@ private:
 
 private:
 
-	void buildGraph(const spMtx<EWeightType>& matrix) {
-		n = static_cast<idx_t>(matrix.m);
-		m = static_cast<idx_t>(matrix.nz);
+	void buildGraph(const spMtx<EWeightType>& matrix, bool ignore_eweights) {
+		n = static_cast<int_t>(matrix.m);
+		m = static_cast<int_t>(matrix.nz);
 
 		if (m > 0) {
-			adjncy = new idx_t[m];
+			adjncy = new int_t[m];
 			for (size_t i = 0; i < m; i++) {
-				adjncy[i] = static_cast<idx_t>(matrix.Col[i]);
+				adjncy[i] = static_cast<int_t>(matrix.Col[i]);
 			}
 		}
 
 		if (n > 0) {
 			xadj_capacity = n + 1;
-			xadj = new idx_t[xadj_capacity];
+			xadj = new int_t[xadj_capacity];
 			for (size_t i = 0; i < xadj_capacity; i++) {
-				xadj[i] = static_cast<idx_t>(matrix.Rst[i]);
+				xadj[i] = static_cast<int_t>(matrix.Rst[i]);
 			}
 		}
 
@@ -66,7 +66,7 @@ private:
 
 		if (m > 0) {
 			eweights = new EWeightType[m];
-			if (matrix.Val != nullptr) {
+			if (matrix.Val != nullptr && !ignore_eweights) {
 				for (size_t i = 0; i < m; i++) {
 					eweights[i] = matrix.Val[i];
 				}
@@ -82,14 +82,14 @@ private:
 public:
 
 	// requires symmetric matrix
-	Graph(const spMtx<EWeightType>& matrix) {
-		buildGraph(matrix);
+	Graph(const spMtx<EWeightType>& matrix, bool ignore_eweights = false) {
+		buildGraph(matrix, ignore_eweights);
 	}
 
 	// requires symmetric matrix
-	Graph(const std::string& file_name, const std::string& format) {
+	Graph(const std::string& file_name, const std::string& format, bool ignore_eweights = false) {
 		spMtx<EWeightType> matrix(file_name.c_str(), format);
-		buildGraph(matrix);
+		buildGraph(matrix, ignore_eweights);
 	}
 
 	Graph(const Graph& other) {
@@ -99,14 +99,14 @@ public:
 		xadj_capacity = other.xadj_capacity;
 
 		if (m > 0) {
-			adjncy = new idx_t[m];
+			adjncy = new int_t[m];
 			for (size_t i = 0; i < m; ++i) {
 				adjncy[i] = other.adjncy[i];
 			}
 		}
 
 		if (xadj_capacity > 0) {
-			xadj = new idx_t[xadj_capacity];
+			xadj = new int_t[xadj_capacity];
 			for (size_t i = 0; i < xadj_capacity; ++i) {
 				xadj[i] = other.xadj[i];
 			}
@@ -165,14 +165,14 @@ public:
 		xadj_capacity = other.xadj_capacity;
 
 		if (m > 0) {
-			adjncy = new idx_t[m];
+			adjncy = new int_t[m];
 			for (size_t i = 0; i < m; ++i) {
 				adjncy[i] = other.adjncy[i];
 			}
 		}
 
 		if (xadj_capacity > 0) {
-			xadj = new idx_t[xadj_capacity];
+			xadj = new int_t[xadj_capacity];
 			for (size_t i = 0; i < xadj_capacity; ++i) {
 				xadj[i] = other.xadj[i];
 			}
@@ -235,18 +235,18 @@ public:
 		delete[] eweights;
 	}
 
-	idx_t getVerticesCount() const noexcept {
+	int_t getVerticesCount() const noexcept {
 		return n;
 	}
 
-	idx_t getEdgesCount() const noexcept {
+	int_t getEdgesCount() const noexcept {
 		return m;
 	}
 
 	void printEdges() const {
-		for (idx_t u = 0; u < n; ++u) {
-			for (idx_t i = xadj[u]; i < xadj[u + 1]; ++i) {
-				idx_t v = adjncy[i];
+		for (int_t u = 0; u < n; ++u) {
+			for (int_t i = xadj[u]; i < xadj[u + 1]; ++i) {
+				int_t v = adjncy[i];
 				EWeightType w = eweights[i];
 				std::cout << u << " " << v << " " << w << "\n";
 			}
