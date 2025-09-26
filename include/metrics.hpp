@@ -3,11 +3,6 @@
 #include "graph.hpp"
 
 class PartitionMetrics {
-
-	/*
-	 * This class makes it possible to obtain the characteristics of a partition.
-	*/
-
 private:
 
 	static real_t getIdealSize(const int_t total_W, const int_t number_of_parts) {
@@ -19,71 +14,81 @@ private:
 	}
 
 public:
-	template <typename EWeightType, typename VWeightType>
+	template <typename EdgeWeight_t, typename VertexWeight_t>
 	static void getEdgeCut(
-		const Graph<EWeightType, VWeightType>& graph,
-		const int_t* k,
-		EWeightType& edge_cut
+		const Graph<EdgeWeight_t, VertexWeight_t>& graph,
+		const Vector<int_t> partition,
+		EdgeWeight_t& edge_cut
 	) {
+		const int_t* adjncy_ptr = graph.adjncy.data();
+		const int_t* xadj_ptr = graph.xadj.data();
+		const EdgeWeight_t* edge_weights_ptr = graph.edge_weights.data();
+
+		const int_t* partition_ptr = partition.data();
+
 		edge_cut = 0;
 
-		for (int_t u = 0; u < graph.n; ++u) {
-			for (int_t i = graph.xadj[u]; i < graph.xadj[u + 1]; ++i) {
-				int_t v = graph.adjncy[i];
+		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); ++curr_V) {
+			for (int_t i = xadj_ptr[curr_V]; i < xadj_ptr[curr_V + 1]; ++i) {
+				int_t next_V = adjncy_ptr[i];
 
-				if (u < v && k[u] != k[v]) {
-					edge_cut += graph.eweights[i];
+				if (curr_V < next_V && partition_ptr[curr_V] != partition_ptr[next_V]) {
+					edge_cut += edge_weights_ptr[i];
 				}
 			}
 		}
 	}
 
-	template <typename EWeightType, typename VWeightType>
+	template <typename EdgeWeight_t, typename VertexWeight_t>
 	static void getBalances(
-		const Graph<EWeightType, VWeightType>& graph,
-		const int_t number_of_parts,
-		const int_t* partition,
-		real_t* balances
+		const Graph<EdgeWeight_t, VertexWeight_t>& graph,
+		const int_t k,
+		const Vector<int_t>& partition,
+		Vector<real_t>& balances
 	) {
-		for (int_t i = 0; i < number_of_parts; ++i) {
-			balances[i] = 0;
+		balances.assign(k, 0);
+
+		const int_t* adjncy_ptr = graph.adjncy.data();
+		const int_t* xadj_ptr = graph.xadj.data();
+		const VertexWeight_t* vertex_weights_ptr = graph.vertex_weights.data();
+
+		const int_t* partition_ptr = partition.data();
+		real_t* balances_ptr = balances.data();
+
+		VertexWeight_t total_W = 0;
+		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); ++curr_V) {
+			total_W += vertex_weights_ptr[curr_V];
 		}
 
-		VWeightType total_W = 0;
-		for (int_t u = 0; u < graph.n; ++u) {
-			total_W += graph.vweights[u];
+		real_t ideal_size = getIdealSize(total_W, k);
+
+		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); ++curr_V) {
+			balances_ptr[partition_ptr[curr_V]] += static_cast<real_t>(vertex_weights_ptr[curr_V]);
 		}
 
-		real_t ideal_size = getIdealSize(total_W, number_of_parts);
-
-		for (int_t u = 0; u < graph.n; ++u) {
-			balances[partition[u]] += static_cast<real_t>(graph.vweights[u]);
-		}
-
-		for (int_t i = 0; i < number_of_parts; ++i) {
-			balances[i] = (balances[i] - ideal_size) / ideal_size;
+		for (int_t curr_V = 0; curr_V < k; ++curr_V) {
+			balances_ptr[curr_V] = (balances_ptr[curr_V] - ideal_size) / ideal_size;
 		}
 	}
 
-	template <typename EWeightType, typename VWeightType>
+	template <typename EdgeWeight_t, typename VertexWeight_t>
 	static void getAccuracy(
-		const Graph<EWeightType, VWeightType>& graph,
-		const int_t number_of_parts,
-		const int_t* partition,
+		const Graph<EdgeWeight_t, VertexWeight_t>& graph,
+		const int_t k,
+		const Vector<int_t>& partition,
 		real_t& accuracy
 	) {
 
-		real_t* balances = new real_t[number_of_parts];
+		Vector<real_t> balances(k);
+		getBalances(graph, k, partition, balances);
 
-		getBalances(graph, number_of_parts, partition, balances);
+		const real_t* balances_ptr = balances.data();
 
-		accuracy = balances[0];
-		for (int_t i = 1; i < number_of_parts; ++i) {
-			if (balances[i] > accuracy) {
-				accuracy = balances[i];
+		accuracy = balances_ptr[0];
+		for (int_t curr_V = 1; curr_V < k; ++curr_V) {
+			if (balances_ptr[curr_V] > accuracy) {
+				accuracy = balances_ptr[curr_V];
 			}
 		}
-
-		delete[] balances;
 	}
 };

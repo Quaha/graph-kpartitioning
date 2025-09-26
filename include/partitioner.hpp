@@ -1,25 +1,22 @@
 #pragma once
 
+#include "utils.hpp"
+
 #include "graph.hpp"
 
 class Partitioner {
-
-	/*
-	 * This class finds the partition of a graph into a given number of parts.
-	*/
-
 public:
 
-	template <typename EWeightType, typename VWeightType>
+	template <typename EdgeWeight_t, typename VertexWeight_t>
 	static void getGraphKPartition(
-		const Graph<EWeightType, VWeightType>& graph,
+		const Graph<EdgeWeight_t, VertexWeight_t>& graph,
 		const int_t k,
 		const real_t accuracy,
-		int_t* partition,
-		EWeightType& edge_cut
+		Vector<int_t>& partition,
+		EdgeWeight_t& edge_cut
 	) {
 
-		// code
+		
 
 	}
 };

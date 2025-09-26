@@ -9,4 +9,9 @@ using real_t = long double;
 
 inline constexpr real_t EPS = 1e-8;
 
-std::vector<std::string> getFileNames(const std::string& folder, const std::string& format);
+template <typename T> 
+using Vector = std::vector<T>;
+
+using String = std::string;
+
+Vector<String> getFileNames(const String& folder, const String& format);

@@ -1,7 +1,7 @@
 #include "utils.hpp"
 
-std::vector<std::string> getFileNames(const std::string& folder, const std::string& format) {
-    std::vector<std::string> file_names(0);
+Vector<String> getFileNames(const String& folder, const String& format) {
+    Vector<String> file_names;
 
     for (const auto& entry : std::filesystem::directory_iterator(folder)) {
         if (entry.is_regular_file() && entry.path().extension() == "." + format) {
