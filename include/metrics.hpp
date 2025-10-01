@@ -20,20 +20,14 @@ public:
 		const Vector<int_t> partition,
 		EdgeWeight_t& edge_cut
 	) {
-		const int_t* adjncy_ptr = graph.adjncy.data();
-		const int_t* xadj_ptr = graph.xadj.data();
-		const EdgeWeight_t* edge_weights_ptr = graph.edge_weights.data();
-
-		const int_t* partition_ptr = partition.data();
-
 		edge_cut = 0;
 
 		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); ++curr_V) {
-			for (int_t i = xadj_ptr[curr_V]; i < xadj_ptr[curr_V + 1]; ++i) {
-				int_t next_V = adjncy_ptr[i];
+			for (int_t i = graph.xadj[curr_V]; i < graph.xadj[curr_V + 1]; ++i) {
+				int_t next_V = graph.adjncy[i];
 
-				if (curr_V < next_V && partition_ptr[curr_V] != partition_ptr[next_V]) {
-					edge_cut += edge_weights_ptr[i];
+				if (curr_V < next_V && partition[curr_V] != partition[next_V]) {
+					edge_cut += graph.edge_weights[i];
 				}
 			}
 		}
@@ -48,26 +42,19 @@ public:
 	) {
 		balances.assign(k, 0);
 
-		const int_t* adjncy_ptr = graph.adjncy.data();
-		const int_t* xadj_ptr = graph.xadj.data();
-		const VertexWeight_t* vertex_weights_ptr = graph.vertex_weights.data();
-
-		const int_t* partition_ptr = partition.data();
-		real_t* balances_ptr = balances.data();
-
 		VertexWeight_t total_W = 0;
-		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); ++curr_V) {
-			total_W += vertex_weights_ptr[curr_V];
+		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); curr_V++) {
+			total_W += graph.vertex_weights[curr_V];
 		}
 
 		real_t ideal_size = getIdealSize(total_W, k);
 
-		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); ++curr_V) {
-			balances_ptr[partition_ptr[curr_V]] += static_cast<real_t>(vertex_weights_ptr[curr_V]);
+		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); curr_V++) {
+			balances[partition[curr_V]] += static_cast<real_t>(graph.vertex_weights[curr_V]);
 		}
 
-		for (int_t curr_V = 0; curr_V < k; ++curr_V) {
-			balances_ptr[curr_V] = (balances_ptr[curr_V] - ideal_size) / ideal_size;
+		for (int_t curr_V = 0; curr_V < k; curr_V++) {
+			balances[curr_V] = (balances[curr_V] - ideal_size) / ideal_size;
 		}
 	}
 
@@ -82,12 +69,10 @@ public:
 		Vector<real_t> balances(k);
 		getBalances(graph, k, partition, balances);
 
-		const real_t* balances_ptr = balances.data();
-
-		accuracy = balances_ptr[0];
-		for (int_t curr_V = 1; curr_V < k; ++curr_V) {
-			if (balances_ptr[curr_V] > accuracy) {
-				accuracy = balances_ptr[curr_V];
+		accuracy = balances[0];
+		for (int_t curr_V = 1; curr_V < k; curr_V++) {
+			if (balances[curr_V] > accuracy) {
+				accuracy = balances[curr_V];
 			}
 		}
 	}
