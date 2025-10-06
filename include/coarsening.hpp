@@ -15,7 +15,7 @@ public:
 		Graph<VertexWeight_t, EdgeWeight_t> coarsed_graph;
 	};
 
-	template <typename EdgeWeight_t, typename VertexWeight_t>
+	template <typename VertexWeight_t, typename EdgeWeight_t>
 	void getCoarseLevels(
 		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
 		const int_t vertices_count,

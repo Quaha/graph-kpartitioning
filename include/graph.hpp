@@ -7,6 +7,11 @@
 
 class Partitioner;
 class PartitionMetrics;
+class Coarser;
+
+class CoarseTest;
+
+template <typename VertexWeight_t, typename EdgeWeight_t> class GraphTester;
 
 // Graph stored in Compressed Row Storage (CRS/CSR) format.
 //
@@ -19,6 +24,9 @@ class Graph {
 	friend class Partitioner;
 	friend class PartitionMetrics;
 	friend class Coarser;
+
+	friend class CoarseTest;
+	friend class GraphTester<VertexWeight_t, EdgeWeight_t>;
 
 private:
 	int_t n = 0; // Number of vertices
@@ -73,14 +81,18 @@ private:
 		}
 	}
 
+	Graph() {
+
+	}
+
 public:
 
-	// Requires symmetric matrix
+	// Requires a matrix corresponding to an undirected graph
 	Graph(const spMtx<EdgeWeight_t>& matrix, bool ignore_eweights = false) {
 		buildGraph(matrix, ignore_eweights);
 	}
 
-	// Requires symmetric matrix
+	// Requires a matrix corresponding to an undirected graph
 	Graph(const String& file_name, const String& format, bool ignore_eweights = false) {
 		spMtx<EdgeWeight_t> matrix(file_name.c_str(), format);
 		buildGraph(matrix, ignore_eweights);
@@ -168,4 +180,26 @@ public:
 			}
 		}
 	}
+};
+
+template <typename VertexWeight_t, typename EdgeWeight_t>
+class GraphTester {
+public:
+
+	static const Vector<int_t>& getAdjncy(const Graph<VertexWeight_t, EdgeWeight_t>& g) {
+		return g.adjncy;
+	}
+
+	static const Vector<int_t>& getXadj(const Graph<VertexWeight_t, EdgeWeight_t>& g) {
+		return g.xadj;
+	}
+
+	static const Vector<VertexWeight_t>& getVertexWeights(const Graph<VertexWeight_t, EdgeWeight_t>& g) {
+		return g.vertex_weights;
+	}
+
+	static const Vector<VertexWeight_t>& getEdgeWeights(const Graph<VertexWeight_t, EdgeWeight_t>& g) {
+		return g.edge_weights;
+	}
+
 };
