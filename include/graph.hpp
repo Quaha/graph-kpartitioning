@@ -3,6 +3,7 @@
 #include "matrix.hpp"
 #include "utils.hpp"
 
+#include <map>
 #include <unordered_map>
 
 class Partitioner;
@@ -14,13 +15,15 @@ class CoarseTest;
 template <typename VertexWeight_t, typename EdgeWeight_t> class GraphTester;
 
 // Graph stored in Compressed Row Storage (CRS/CSR) format.
-//
+// Vertices are numbered starting from 0.
+// 
 // Template parameters:
 //   VertexWeight_t — type of vertex weights
 //   EdgeWeight_t - type of edge weights
 //
 template <typename VertexWeight_t, typename EdgeWeight_t>
 class Graph {
+
 	friend class Partitioner;
 	friend class PartitionMetrics;
 	friend class Coarser;
@@ -47,8 +50,45 @@ private:
 	// Edge weights (size = m).
 	Vector<EdgeWeight_t> edge_weights;
 
-private:
+public:
 
+	struct AdjacentIterator {
+		const Graph& g;
+		int_t v;
+
+		struct Iterator {
+			const Graph& g;
+			int_t pos;
+
+			Iterator(const Graph& g, int_t pos) : g(g), pos(pos) {}
+
+			bool operator!=(const Iterator& other) const {
+				return pos != other.pos;
+			}
+
+			void operator++() {
+				++pos;
+			}
+
+			std::pair<int_t, EdgeWeight_t> operator*() const {
+				return std::make_pair(g.adjncy[pos], g.edge_weights[pos]);
+			}
+		};
+
+		Iterator begin() const {
+			return Iterator(g, g.xadj[v]);
+		}
+
+		Iterator end() const {
+			return Iterator(g, g.xadj[v + 1]);
+		}
+	};
+
+	AdjacentIterator operator[](int_t v) const {
+		return AdjacentIterator{ *this, v };
+	}
+
+private:
 	void buildGraph(const spMtx<EdgeWeight_t>& matrix, bool ignore_eweights) {
 		n = static_cast<int_t>(matrix.m);
 		m = static_cast<int_t>(matrix.nz);
@@ -98,6 +138,42 @@ public:
 		buildGraph(matrix, ignore_eweights);
 	}
 
+	Graph(
+		const Vector<VertexWeight_t>& vertex_weights,
+		const Vector<std::tuple<int_t, int_t, EdgeWeight_t>>& edges
+	) {
+		n = static_cast<int_t>(vertex_weights.size());
+		this->vertex_weights = vertex_weights;
+
+		Vector<int_t> degree(n, 0);
+		for (auto& [u, v, w] : edges) {
+			degree[u]++;
+			degree[v]++;
+		}
+
+		xadj.resize(n + 1, 0);
+		for (int_t i = 1; i <= n; i++) {
+			xadj[i] = xadj[i - 1] + degree[i - 1];
+		}
+
+		m = xadj[n];
+
+		adjncy.resize(m);
+		edge_weights.resize(m);
+
+		Vector<int_t> offset = xadj;
+
+		for (auto& [u, v, w] : edges) {
+			adjncy[offset[u]] = v;
+			edge_weights[offset[u]] = w;
+			offset[u]++;
+
+			adjncy[offset[v]] = u;
+			edge_weights[offset[v]] = w;
+			offset[v]++;
+		}
+	}
+
 	int_t getVerticesCount() const noexcept {
 		return n;
 	}
@@ -108,7 +184,7 @@ public:
 
 	// This function returns a subgraph of the current graph, where
 	// the vertices were mapped according to the order in vertices.
-	Graph<VertexWeight_t, EdgeWeight_t> selectSubgraph(const Vector<int_t>& vertices) {
+	Graph<VertexWeight_t, EdgeWeight_t> selectSubgraph(const Vector<int_t>& vertices) const {
 		Graph<VertexWeight_t, EdgeWeight_t> subgraph;
 
 		std::unordered_map<int_t, int_t> original_to_sub;
@@ -179,6 +255,62 @@ public:
 				std::cout << curr_V << " " << next_V << " " << w << "\n";
 			}
 		}
+	}
+
+	bool operator==(const Graph<VertexWeight_t, EdgeWeight_t>& other) const {
+		if (n != other.n || m != other.m) {
+			return false;
+		}
+		if (vertex_weights.size() != other.vertex_weights.size()) {
+			return false;
+		}
+		if (xadj.size() != other.xadj.size()) {
+			return false;
+		}
+		if (edge_weights.size() != other.edge_weights.size()) {
+			return false;
+		}
+
+		for (int_t i = 0; i < n; i++) {
+			if ((std::abs(vertex_weights[i] - other.vertex_weights[i]) > EPS)) {
+				return false;
+			}
+		}
+
+		std::map<std::pair<int_t, int_t>, EdgeWeight_t> edges;
+
+		for (int_t curr_V = 0; curr_V < n; ++curr_V) {
+			for (int_t i = xadj[curr_V]; i < xadj[curr_V + 1]; ++i) {
+				int_t next_V = adjncy[i];
+				if (curr_V <= next_V) {
+					std::pair<int_t, int_t> key = { curr_V, next_V };
+					edges[key] += edge_weights[i];
+				}
+			}
+		}
+
+		for (int_t curr_V = 0; curr_V < other.n; ++curr_V) {
+			for (int_t i = other.xadj[curr_V]; i < other.xadj[curr_V + 1]; ++i) {
+				int_t next_V = other.adjncy[i];
+				if (curr_V <= next_V) {
+					std::pair<int_t, int_t> key = { curr_V, next_V };
+					auto it = edges.find(key);
+					if (it == edges.end()) {
+						return false;
+					}
+					it->second -= other.edge_weights[i];
+					if (std::abs(it->second) < EPS) {
+						edges.erase(it);
+					}
+				}
+			}
+		}
+
+		return edges.empty();
+	}
+
+	bool operator!=(const Graph<VertexWeight_t, EdgeWeight_t>& other) const {
+		return !(*this == other);
 	}
 };
 

@@ -43,7 +43,7 @@ TEST_P(CoarseTest, CoarseLevelsCompressionDecompression) {
             sum_coarse += v;
         }
 
-        EXPECT_EQ(sum_orig, sum_coarse);
+        EXPECT_TRUE(std::abs(sum_orig - sum_coarse) < EPS);
 
         EXPECT_EQ(levels[lvl].uncoarse_to_coarse.size(), levels[lvl - 1].coarsed_graph.getVerticesCount());
 

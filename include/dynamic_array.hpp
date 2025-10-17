@@ -18,6 +18,7 @@ public:
 private:
 
     size_type sz = 0;
+    size_type cap = 0;
     pointer data_ptr = nullptr;
 
 public:
@@ -25,32 +26,35 @@ public:
     DynamicArray() = default;
 
     explicit DynamicArray(size_type n):
-        data_ptr(new value_type[n]()),
-        sz(n)
-    {
-
-    }
+        sz(n),
+        cap(n),
+        data_ptr(new value_type[n]())
+    {}
 
     DynamicArray(size_type n, const value_type& value):
-        data_ptr(new value_type[n]),
-        sz(n)
+        sz(n),
+        cap(n),
+        data_ptr(new value_type[n])
     {
         std::fill(data_ptr, data_ptr + sz, value);
     }
 
     DynamicArray(const DynamicArray& other):
-        data_ptr(new value_type[other.sz]),
-        sz(other.sz)
+        sz(other.sz),
+        cap(other.cap),
+        data_ptr(new value_type[other.sz])
     {
         std::copy(other.data_ptr, other.data_ptr + sz, data_ptr);
     }
 
     DynamicArray(DynamicArray&& other) noexcept:
-        data_ptr(other.data_ptr),
-        sz(other.sz)
+        sz(other.sz),
+        cap(other.cap),
+        data_ptr(other.data_ptr)
     {
-        other.data_ptr = nullptr;
         other.sz = 0;
+        other.cap = 0;
+        other.data_ptr = nullptr;
     }
 
     DynamicArray& operator=(const DynamicArray& other) {
@@ -58,7 +62,9 @@ public:
             delete[] data_ptr;
 
             sz = other.sz;
-            data_ptr = new value_type[sz];
+            cap = other.cap;
+
+            data_ptr = new value_type[cap];
             std::copy(other.data_ptr, other.data_ptr + sz, data_ptr);
         }
         return *this;
@@ -68,11 +74,14 @@ public:
         if (this != &other) {
             delete[] data_ptr;
 
-            data_ptr = other.data_ptr;
             sz = other.sz;
+            cap = other.cap;
 
-            other.data_ptr = nullptr;
+            data_ptr = other.data_ptr;
+
             other.sz = 0;
+            other.cap = 0;
+            other.data_ptr = nullptr;
         }
         return *this;
     }
@@ -122,42 +131,104 @@ public:
     }
 
     void resize(size_type n) {
-        value_type* new_data_ptr = new value_type[n]();
-        size_type copy_size = std::min(sz, n);
+        if (n > cap) {
+            value_type* new_data_ptr = new value_type[n]();
 
-        std::copy(data_ptr, data_ptr + copy_size, new_data_ptr);
-        delete[] data_ptr;
+            std::copy(data_ptr, data_ptr + sz, new_data_ptr);
+            delete[] data_ptr;
 
-        data_ptr = new_data_ptr;
+            cap = n;
+            data_ptr = new_data_ptr;
+        }
+
         sz = n;
     }
 
     void resize(size_type n, const value_type& value) {
-        value_type* new_data_ptr = new value_type[n]();
-        size_type copy_size = std::min(sz, n);
 
-        std::copy(data_ptr, data_ptr + copy_size, new_data_ptr);
-        for (size_type i = copy_size; i < n; ++i) {
-            new_data_ptr[i] = value;
+        if (n > cap) {
+            value_type* new_data_ptr = new value_type[n]();
+
+            std::copy(data_ptr, data_ptr + sz, new_data_ptr);
+            delete[] data_ptr;
+
+            cap = n;
+            data_ptr = new_data_ptr;
         }
-        delete[] data_ptr;
 
-        data_ptr = new_data_ptr;
+        size_type copy_size = std::min(sz, n);
+        for (size_type i = copy_size; i < n; ++i) {
+            data_ptr[i] = value;
+        }
+
         sz = n;
     }
 
     void assign(size_type n, const value_type& value) {
-        delete[] data_ptr;
+        if (n > cap) {
+            cap = n;
+
+            delete[] data_ptr;
+            data_ptr = new value_type[n]();
+        }
 
         sz = n;
-        data_ptr = new value_type[n]();
         std::fill(data_ptr, data_ptr + n, value);
     }
 
     void clear() noexcept {
         delete[] data_ptr;
 
-        data_ptr = nullptr;
         sz = 0;
+        cap = 0;
+        data_ptr = nullptr;
+    }
+
+    void reserve(size_type new_cap) {
+        if (new_cap > cap) {
+            value_type* new_data_ptr = new value_type[new_cap];
+
+            std::move(data_ptr, data_ptr + sz, new_data_ptr);
+
+            delete[] data_ptr;
+            data_ptr = new_data_ptr;
+            cap = new_cap;
+        }
+    }
+
+    void push_back(const value_type& value) {
+        if (sz == cap) {
+            reserve(cap * 2 + 1);
+        }
+        data_ptr[sz] = value;
+        ++sz;
+    }
+
+    size_type capacity() const noexcept {
+        return cap;
+    }
+
+    bool operator==(const DynamicArray& other) const noexcept {
+        if (sz != other.sz) {
+            return false;
+        }
+        for (size_type i = 0; i < sz; i++) {
+            if (!(data_ptr[i] == other.data_ptr[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const DynamicArray& other) const noexcept {
+        return !(*this == other);
+    }
+
+    T& back() {
+        return data_ptr[sz - 1];
+    }
+
+    const T& back() const{
+        return data_ptr[sz - 1];
     }
 };

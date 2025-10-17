@@ -2,20 +2,10 @@
 
 Vector<String> getFileNames(const String& folder, const String& format) {
 
-    size_t sz = 0;
-
+    Vector<String> file_names;
     for (const auto& entry : std::filesystem::directory_iterator(folder)) {
         if (entry.is_regular_file() && entry.path().extension() == "." + format) {
-            sz++;
-        }
-    }
-
-    Vector<String> file_names(sz);
-    size_t p = 0;
-
-    for (const auto& entry : std::filesystem::directory_iterator(folder)) {
-        if (entry.is_regular_file() && entry.path().extension() == "." + format) {
-            file_names[p++] = entry.path().string();
+            file_names.push_back(entry.path().string());
         }
     }
 

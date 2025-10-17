@@ -285,3 +285,43 @@ TEST(DynamicArray, Clear) {
     EXPECT_EQ(arr.size(), 0);
     EXPECT_EQ(arr.data(), nullptr);
 }
+
+TEST(DynamicArray, PushBack) {
+    DynamicArray<int> arr;
+
+    EXPECT_EQ(arr.size(), 0);
+
+    arr.push_back(10);
+
+    EXPECT_EQ(arr.size(), 1);
+    EXPECT_EQ(arr[0], 10);
+
+    for (int i = 1; i < 10; ++i) {
+        arr.push_back((i + 1) * 10);
+    }
+
+    EXPECT_EQ(arr.size(), 10);
+    EXPECT_EQ(arr[9], 100);
+
+    for (int i = 0; i < 10; ++i) {
+        EXPECT_EQ(arr[i], (i + 1) * 10);
+    }
+}
+
+TEST(DynamicArray, Reserve) {
+    DynamicArray<int> arr(3, 5);
+
+    size_t old_capacity = 3;
+    arr.reserve(10);
+
+    EXPECT_NE(arr.data(), nullptr);
+    EXPECT_EQ(arr.size(), 3);
+    EXPECT_GE(arr.capacity(), 10);
+
+    for (int i = 0; i < 3; ++i) {
+        EXPECT_EQ(arr[i], 5);
+    }
+
+    arr.reserve(5);
+    EXPECT_GE(arr.capacity(), 10);
+}
