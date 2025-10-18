@@ -11,7 +11,7 @@ class CoarseTest : public ::testing::TestWithParam<std::string> {};
 INSTANTIATE_TEST_SUITE_P(
     AllMtxFiles,
     CoarseTest,
-    ::testing::ValuesIn(getFileNames(DATA_BASE_PATH, "mtx"))
+    ::testing::ValuesIn(getFileNames(DATA_BASE_PATH, ".mtx"))
 );
 
 TEST_P(CoarseTest, CoarseLevelsCompressionDecompression) {

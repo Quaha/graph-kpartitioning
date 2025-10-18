@@ -11,7 +11,7 @@
 void printBenchmark(const real_t accuracy) {
 
     const String base_folder = "../data";
-    const String format = "mtx";
+    const String format = ".mtx";
     const Vector<String> files = getFileNames(base_folder, format);
 
     Vector<int_t> ks;
@@ -38,9 +38,7 @@ void printBenchmark(const real_t accuracy) {
             real_t edge_cut = 0;
 
             Partitioner::getGraphKPartition(g, k, 0.05, partition, edge_cut);
-
-            real_t real_accuracy;
-            PartitionMetrics::getAccuracy(g, k, partition, real_accuracy);
+            real_t real_accuracy = PartitionMetrics::getAccuracy(g, k, partition);
 
             std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100 << "%" << "\n";
         }

@@ -25,7 +25,7 @@ public:
 		partition.resize(graph.n, -1);
 		recursivePartition<VertexWeight_t, EdgeWeight_t>(graph, k, accuracy, partition, 0, VERTICES_COUNT_BORDER, TOTAL_ITERATIONS);
 
-        PartitionMetrics::getEdgeCut(graph, partition, edge_cut);
+        edge_cut = PartitionMetrics::getEdgeCut(graph, partition);
 	}
 
     template <typename VertexWeight_t, typename EdgeWeight_t>
@@ -47,7 +47,7 @@ public:
         Coarser::getCoarseLevels(graph, VERTICES_COUNT_BORDER, TOTAL_ITERATIONS, levels);
 
         const Graph<VertexWeight_t, EdgeWeight_t>& coarse_graph = levels.back().coarsed_graph;
-        Vector<int_t> coarse_partition = bisectGraphBFS(coarse_graph, accuracy);
+        Vector<int_t> coarse_partition = graphGrowingAlgorithm(coarse_graph, accuracy);
 
         for (int_t i = levels.size() - 1; i > 0; i--) {
             coarse_partition = Coarser::propagatePartition<VertexWeight_t, EdgeWeight_t>(levels[i], coarse_partition);
@@ -66,16 +66,23 @@ public:
         Graph<VertexWeight_t, EdgeWeight_t> left_graph = graph.selectSubgraph(left_part_vertices);
         Graph<VertexWeight_t, EdgeWeight_t> right_graph = graph.selectSubgraph(right_part_vertices);
 
-        int_t left_k = k / 2;
+
+        VertexWeight_t total_W = 0;
+        for (int_t i = 0; i < graph.n; i++) {
+            total_W += graph.vertex_weights[i];
+        }
+
+        VertexWeight_t left_W = 0, right_W = 0;
+        for (int_t i = 0; i < left_graph.n; i++) {
+            left_W += left_graph.vertex_weights[i];
+        }
+
+        real_t total_parts = static_cast<real_t>(k);
+        real_t ratio_left = static_cast<real_t>(left_W) / static_cast<real_t>(total_W);
+
+        int_t left_k = std::min(k - 1, std::max<int_t>(1, std::round(total_parts * ratio_left)));
         int_t right_k = k - left_k;
 
-        if (left_k > right_k && left_graph.n < right_graph.n) {
-            std::swap(left_k, right_k);
-        }
-
-        if (left_k < right_k && left_graph.n > right_graph.n) {
-            std::swap(left_k, right_k);
-        }
 
         Vector<int_t> left_part(left_graph.n, -1);
         Vector<int_t> right_part(right_graph.n, -1);
@@ -93,13 +100,11 @@ public:
     }
      
     template <typename VertexWeight_t, typename EdgeWeight_t>
-    static Vector<int_t> bisectGraphBFS(
+    static Vector<int_t> graphGrowingAlgorithm(
         const Graph<VertexWeight_t, EdgeWeight_t>& graph,
         real_t accuracy
     ) {
         const int_t n = graph.n;
-        Vector<int_t> part(n, 0);
-        Vector<bool> visited(n, false);
 
         real_t total_weight = 0;
         for (EdgeWeight_t w : graph.vertex_weights) {
@@ -109,36 +114,57 @@ public:
         real_t ideal_weight = total_weight / 2.0;
         real_t max_allowed = (accuracy + 1.0) * ideal_weight;
 
-        std::queue<int_t> q;
+        Vector<int_t> best_partition;
+        EdgeWeight_t best_edge_cut;
 
-        for (int_t start_V = 0; start_V < n; start_V++) {
-            if (graph.vertex_weights[start_V] <= max_allowed) {
-                q.push(start_V);
-                visited[start_V] = true;
-                break;
-            }
-        }
+        bool found = false;
 
-        real_t current_weight = 0;
+        for (int i = 0; i < 10; i++) {
 
-        while (!q.empty()) {
-            int_t curr_V = q.front(); q.pop();
+            Vector<int_t> part(n, 0);
+            Vector<bool> visited(n, false);
 
-            if (current_weight + graph.vertex_weights[curr_V] > max_allowed) {
-                continue;
-            }
+            std::queue<int_t> q;
 
-            part[curr_V] = 1;
-            current_weight += graph.vertex_weights[curr_V];
+            Vector<int_t> order = getRandomPermutation(n);
 
-            for (auto [next_V, w] : graph[curr_V]) {
-                if (!visited[next_V]) {
-                    visited[next_V] = true;
-                    q.push(next_V);
+            for (int_t start_V: order) {
+                if (graph.vertex_weights[start_V] <= max_allowed) {
+                    q.push(start_V);
+                    visited[start_V] = true;
+                    break;
                 }
             }
+
+            real_t current_weight = 0;
+
+            while (!q.empty()) {
+                int_t curr_V = q.front(); q.pop();
+
+                if (current_weight + graph.vertex_weights[curr_V] > max_allowed) {
+                    continue;
+                }
+
+                part[curr_V] = 1;
+                current_weight += graph.vertex_weights[curr_V];
+
+                for (auto [next_V, w] : graph[curr_V]) {
+                    if (!visited[next_V]) {
+                        visited[next_V] = true;
+                        q.push(next_V);
+                    }
+                }
+            }
+
+            EdgeWeight_t edge_cut = PartitionMetrics::getEdgeCut(graph, part);
+
+            if (!found || edge_cut < best_edge_cut) {
+                found = true;
+                best_partition = part;
+                best_edge_cut = edge_cut;
+            }
         }
 
-        return part;
+        return best_partition;
     }
 };

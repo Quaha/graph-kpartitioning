@@ -14,7 +14,7 @@ class MetricsCrashTest : public ::testing::TestWithParam<String> {};
 INSTANTIATE_TEST_SUITE_P(
 	AllMtxFiles,
 	MetricsCrashTest,
-	::testing::ValuesIn(getFileNames(DATA_BASE_PATH, "mtx"))
+	::testing::ValuesIn(getFileNames(DATA_BASE_PATH, ".mtx"))
 );
 
 TEST_P(MetricsCrashTest, canCountEdgeCut) {
@@ -25,9 +25,7 @@ TEST_P(MetricsCrashTest, canCountEdgeCut) {
 
 	Vector<int_t> partition(g.getVerticesCount(), 0);
 
-	int_t edge_cut;
-
-	EXPECT_NO_THROW(PartitionMetrics::getEdgeCut(g, partition, edge_cut));
+	EXPECT_NO_THROW(PartitionMetrics::getEdgeCut(g, partition));
 }
 
 TEST(MetricsCountTest, getEdgeCutFullGraph) {
@@ -35,9 +33,7 @@ TEST(MetricsCountTest, getEdgeCutFullGraph) {
 	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx", true);
 
 	Vector<int_t> partition(g.getVerticesCount(), 0);
-	int_t edge_cut;
-
-	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
+	int_t edge_cut = PartitionMetrics::getEdgeCut(g, partition);
 
 	EXPECT_EQ(edge_cut, 0);
 }
@@ -51,9 +47,7 @@ TEST(MetricsCountTest, getEdgeCutFullGraph2) {
 	partition[0] = 1;
 	partition[1] = 1;
 
-	int_t edge_cut;
-
-	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
+	int_t edge_cut = PartitionMetrics::getEdgeCut(g, partition);
 
 	EXPECT_EQ(edge_cut, 6);
 }
@@ -65,9 +59,7 @@ TEST(MetricsCountTest, getEdgeCutFullGraph3) {
 	Vector<int_t> partition(g.getVerticesCount(), 0);
 	partition[0] = 1;
 
-	int_t edge_cut;
-
-	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
+	int_t edge_cut = PartitionMetrics::getEdgeCut(g, partition);
 
 	EXPECT_EQ(edge_cut, 4);
 }
@@ -79,9 +71,7 @@ TEST(MetricsCountTest, getEdgeCutFullGraph4) {
 	Vector<int_t> partition(g.getVerticesCount());
 	std::iota(partition.begin(), partition.end(), 0);
 
-	int_t edge_cut;
-
-	PartitionMetrics::getEdgeCut(g, partition, edge_cut);
+	int_t edge_cut = PartitionMetrics::getEdgeCut(g, partition);
 
 	EXPECT_EQ(edge_cut, 10);
 }
@@ -94,9 +84,8 @@ TEST_P(MetricsCrashTest, canCountBalances) {
 
 	int_t k = 1;
 	Vector<int_t> partition(g.getVerticesCount(), 0);
-	Vector<real_t> balances(k);
 
-	EXPECT_NO_THROW(PartitionMetrics::getBalances(g, 1, partition, balances));
+	EXPECT_NO_THROW(PartitionMetrics::getBalances(g, 1, partition));
 }
 
 TEST(MetricsCountTest, getBalancesFullGraph1) {
@@ -105,26 +94,7 @@ TEST(MetricsCountTest, getBalancesFullGraph1) {
 
 	int_t k = 1;
 	Vector<int_t> partition(g.getVerticesCount(), 0);
-	Vector<real_t> balances(k);
+	Vector<real_t> balances = PartitionMetrics::getBalances(g, k, partition);
 
-	PartitionMetrics::getBalances(g, k,partition, balances);
-
-	EXPECT_NEAR(0.0L, balances[0], EPS);
-}
-
-TEST(MetricsCountTest, getBalancesFullGraph2) {
-
-	Graph<int_t, int_t> g(DATA_BASE_PATH + "test_matrix1.mtx", "mtx");
-
-	int_t k = 2;
-
-	Vector<int_t> partition(g.getVerticesCount(), 0);
-	partition[0] = 1;
-
-	Vector<real_t> balances(k);
-
-	PartitionMetrics::getBalances(g, k, partition, balances);
-
-	EXPECT_NEAR(1.0L / 3.0L, balances[0], EPS);
-	EXPECT_NEAR(-2.0L / 3.0L, balances[1], EPS);
+	EXPECT_NEAR(1.0L, balances[0], EPS);
 }
