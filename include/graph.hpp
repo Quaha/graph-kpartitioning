@@ -312,6 +312,14 @@ public:
 	bool operator!=(const Graph<VertexWeight_t, EdgeWeight_t>& other) const {
 		return !(*this == other);
 	}
+
+	VertexWeight_t getSumOfVertexWeights() const {
+		VertexWeight_t result = 0;
+		for (int_t i = 0; i < n; i++) {
+			result += vertex_weights[i];
+		}
+		return result;
+	}
 };
 
 template <typename VertexWeight_t, typename EdgeWeight_t>

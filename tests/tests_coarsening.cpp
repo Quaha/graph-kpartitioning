@@ -20,13 +20,10 @@ TEST_P(CoarseTest, CoarseLevelsCompressionDecompression) {
     Graph<int_t, real_t> g(file_name, "mtx");
 
     Coarser coarser;
-    Vector<Coarser::CoarseLevel<int_t, real_t>> levels;
 
+    EXPECT_NO_THROW(coarser.getCoarseLevels(g));
 
-    const int_t vertices_count = std::max(static_cast<int_t>(2), g.getVerticesCount() / 4);
-    const int_t total_iterations = 5;
-
-    EXPECT_NO_THROW(coarser.getCoarseLevels(g, vertices_count, total_iterations, levels));
+    Vector<Coarser::CoarseLevel<int_t, real_t>> levels = Coarser::getCoarseLevels(g);
 
     EXPECT_GE(levels.size(), 1);
 

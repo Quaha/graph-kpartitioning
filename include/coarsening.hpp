@@ -2,6 +2,8 @@
 
 #include <numeric>
 
+#include "config.hpp"
+
 #include "utils.hpp"
 #include "graph.hpp"
 
@@ -16,13 +18,10 @@ public:
 	};
 
 	template <typename VertexWeight_t, typename EdgeWeight_t>
-	void static getCoarseLevels(
-		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
-		const int_t vertices_count,
-		const int_t total_iterations,
-		Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>>& levels
+	Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> static getCoarseLevels(
+		const Graph<VertexWeight_t, EdgeWeight_t>& graph
 	) {
-		levels.clear();
+		Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels;
 
 		Vector<int_t> base_uncoarse_to_coarse(graph.n);
 		std::iota(base_uncoarse_to_coarse.begin(), base_uncoarse_to_coarse.end(), 0);
@@ -34,15 +33,27 @@ public:
 
 		CoarseLevel<VertexWeight_t, EdgeWeight_t> start_level(base_uncoarse_to_coarse, base_coarse_to_uncoarse, graph);
 
-		levels.reserve(total_iterations + 1);
+		levels.reserve(ProgramConfig::coarsening_itarations_limit + 1);
 		levels.push_back(start_level);
 
-		for (int_t i = 0; i < total_iterations && levels[i].coarsed_graph.n > vertices_count; i++) {
+		for (int_t i = 0; i < ProgramConfig::coarsening_itarations_limit && levels[i].coarsed_graph.n > ProgramConfig::coarsening_vertix_count_limit; i++) {
 
 			CoarseLevel<VertexWeight_t, EdgeWeight_t> new_level;
-			heavyEdgeMatching(levels[i].coarsed_graph, new_level);
+
+			if (ProgramConfig::coarsening_method == ProgramConfig::CoarseningMethod::HeavyEdgeMatching) {
+				heavyEdgeMatching(levels[i].coarsed_graph, new_level);
+			}
+			else if (ProgramConfig::coarsening_method == ProgramConfig::CoarseningMethod::LightEdgeMatching) {
+				lightEdgeMatching(levels[i].coarsed_graph, new_level);
+			}
+			else if (ProgramConfig::coarsening_method == ProgramConfig::CoarseningMethod::RandomMatching) {
+				randomMatching(levels[i].coarsed_graph, new_level);
+			}
+
 			levels.push_back(new_level);
 		}
+
+		return std::move(levels);
 	}
 
 	template <typename EdgeWeight_t, typename VertexWeight_t>

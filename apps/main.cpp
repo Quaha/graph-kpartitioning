@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "config.hpp"
+
 #include "utils.hpp"
 
 #include "graph.hpp"
@@ -15,7 +17,9 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    printBenchmark(0.05);
+    ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::RandomMatching;
+
+    printBenchmark();
 
     return 0;
 }

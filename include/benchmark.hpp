@@ -8,7 +8,7 @@
 
 #include "utils.hpp"
 
-void printBenchmark(const real_t accuracy) {
+void printBenchmark() {
 
     const String base_folder = "../data";
     const String format = ".mtx";
@@ -23,7 +23,7 @@ void printBenchmark(const real_t accuracy) {
     ks.push_back(32);
     ks.push_back(64);
 
-    std::cout << "accuracy (imbalance): " << accuracy * 100 << "%" << "\n";
+    std::cout << "accuracy (imbalance): " << ProgramConfig::accuracy * 100 << "%" << "\n";
 
     for (const auto& path : files) {
         String filename = std::filesystem::path(path).filename().string();
@@ -37,7 +37,7 @@ void printBenchmark(const real_t accuracy) {
             Vector<int_t> partition;
             real_t edge_cut = 0;
 
-            Partitioner::getGraphKPartition(g, k, 0.05, partition, edge_cut);
+            Partitioner::getGraphKPartition(g, k, partition, edge_cut);
             real_t real_accuracy = PartitionMetrics::getAccuracy(g, k, partition);
 
             std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100 << "%" << "\n";

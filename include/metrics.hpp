@@ -59,10 +59,7 @@ public:
 	) {
 		Vector<real_t> balances(k, 0.0);
 
-		VertexWeight_t total_W = 0;
-		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); curr_V++) {
-			total_W += graph.vertex_weights[curr_V];
-		}
+		VertexWeight_t total_W = graph.getSumOfVertexWeights();
 
 		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); curr_V++) {
 			balances[partition[curr_V]] += static_cast<real_t>(graph.vertex_weights[curr_V]);

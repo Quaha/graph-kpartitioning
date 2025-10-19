@@ -15,15 +15,12 @@ public:
 	static void getGraphKPartition(
 		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
 		const int_t k,
-		const real_t accuracy,
 		Vector<int_t>& partition,
-		EdgeWeight_t& edge_cut,
-        const int_t VERTICES_COUNT_BORDER = 16,
-        const int_t TOTAL_ITERATIONS = 40
+		EdgeWeight_t& edge_cut
 	) {
 
 		partition.resize(graph.n, -1);
-		recursivePartition<VertexWeight_t, EdgeWeight_t>(graph, k, accuracy, partition, 0, VERTICES_COUNT_BORDER, TOTAL_ITERATIONS);
+		recursivePartition<VertexWeight_t, EdgeWeight_t>(graph, k, partition, 0);
 
         edge_cut = PartitionMetrics::getEdgeCut(graph, partition);
 	}
@@ -32,22 +29,22 @@ public:
     static void recursivePartition(
         const Graph<VertexWeight_t, EdgeWeight_t>& graph,
         const int_t k,
-        const real_t accuracy,
         Vector<int_t>& partition,
-        int_t offset,
-        const int_t VERTICES_COUNT_BORDER,
-        const int_t TOTAL_ITERATIONS
+        int_t offset
     ) {
         if (k == 1) {
             std::fill(partition.begin(), partition.end(), offset);
             return;
         }
 
-        Vector<Coarser::CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels;
-        Coarser::getCoarseLevels(graph, VERTICES_COUNT_BORDER, TOTAL_ITERATIONS, levels);
+        Vector<Coarser::CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels = Coarser::getCoarseLevels(graph);
 
         const Graph<VertexWeight_t, EdgeWeight_t>& coarse_graph = levels.back().coarsed_graph;
-        Vector<int_t> coarse_partition = graphGrowingAlgorithm(coarse_graph, accuracy);
+
+        Vector<int_t> coarse_partition;
+        if (ProgramConfig::partitioning_method == ProgramConfig::PartitioningMethod::GGA) {
+            coarse_partition = graphGrowingAlgorithm(coarse_graph);
+        }
 
         for (int_t i = levels.size() - 1; i > 0; i--) {
             coarse_partition = Coarser::propagatePartition<VertexWeight_t, EdgeWeight_t>(levels[i], coarse_partition);
@@ -67,15 +64,8 @@ public:
         Graph<VertexWeight_t, EdgeWeight_t> right_graph = graph.selectSubgraph(right_part_vertices);
 
 
-        VertexWeight_t total_W = 0;
-        for (int_t i = 0; i < graph.n; i++) {
-            total_W += graph.vertex_weights[i];
-        }
-
-        VertexWeight_t left_W = 0, right_W = 0;
-        for (int_t i = 0; i < left_graph.n; i++) {
-            left_W += left_graph.vertex_weights[i];
-        }
+        VertexWeight_t total_W = graph.getSumOfVertexWeights();
+        VertexWeight_t left_W = left_graph.getSumOfVertexWeights();
 
         real_t total_parts = static_cast<real_t>(k);
         real_t ratio_left = static_cast<real_t>(left_W) / static_cast<real_t>(total_W);
@@ -87,8 +77,8 @@ public:
         Vector<int_t> left_part(left_graph.n, -1);
         Vector<int_t> right_part(right_graph.n, -1);
 
-        recursivePartition<VertexWeight_t, EdgeWeight_t>(left_graph, left_k, accuracy, left_part, offset, VERTICES_COUNT_BORDER, TOTAL_ITERATIONS);
-        recursivePartition<VertexWeight_t, EdgeWeight_t>(right_graph, right_k, accuracy, right_part, offset + left_k, VERTICES_COUNT_BORDER, TOTAL_ITERATIONS);
+        recursivePartition<VertexWeight_t, EdgeWeight_t>(left_graph, left_k, left_part, offset);
+        recursivePartition<VertexWeight_t, EdgeWeight_t>(right_graph, right_k, right_part, offset + left_k);
 
         for (int_t i = 0; i < left_part_vertices.size(); i++) {
             partition[left_part_vertices[i]] = left_part[i];
@@ -101,18 +91,14 @@ public:
      
     template <typename VertexWeight_t, typename EdgeWeight_t>
     static Vector<int_t> graphGrowingAlgorithm(
-        const Graph<VertexWeight_t, EdgeWeight_t>& graph,
-        real_t accuracy
+        const Graph<VertexWeight_t, EdgeWeight_t>& graph
     ) {
         const int_t n = graph.n;
 
-        real_t total_weight = 0;
-        for (EdgeWeight_t w : graph.vertex_weights) {
-            total_weight += w;
-        }
+        real_t total_weight = graph.getSumOfVertexWeights();
 
         real_t ideal_weight = total_weight / 2.0;
-        real_t max_allowed = (accuracy + 1.0) * ideal_weight;
+        real_t max_allowed = (ProgramConfig::accuracy + 1.0) * ideal_weight;
 
         Vector<int_t> best_partition;
         EdgeWeight_t best_edge_cut;
