@@ -17,7 +17,7 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::RandomMatching;
+    ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::HeavyEdgeMatching;
 
     printBenchmark();
 

@@ -1,4 +1,5 @@
-add20.mtx
-add32.mtx
-test_matrix1.mtx
-test_matrix2.mtx
+../data/add20.mtx
+../data/add32.mtx
+../data/144.mtx
+../tests/data/test_matrix1.mtx
+../tests/data/test_matrix2.mtx

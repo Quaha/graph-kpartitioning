@@ -33,6 +33,8 @@ void printBenchmark() {
 
         Graph<int_t, real_t> g(path, "mtx", true);
 
+        std::cout << "n = " << g.getVerticesCount() << ", m = " << g.getEdgesCount() << "\n";
+
         for (int_t k : ks) {
             Vector<int_t> partition;
             real_t edge_cut = 0;

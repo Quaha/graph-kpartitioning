@@ -95,17 +95,17 @@ public:
     ) {
         const int_t n = graph.n;
 
-        real_t total_weight = graph.getSumOfVertexWeights();
+        VertexWeight_t total_weight = graph.getSumOfVertexWeights();
 
-        real_t ideal_weight = total_weight / 2.0;
-        real_t max_allowed = (ProgramConfig::accuracy + 1.0) * ideal_weight;
+        VertexWeight_t ideal_weight = total_weight / 2;
+        VertexWeight_t max_allowed = (ProgramConfig::accuracy + 1.0) * ideal_weight;
 
         Vector<int_t> best_partition;
         EdgeWeight_t best_edge_cut;
 
         bool found = false;
 
-        for (int i = 0; i < 10; i++) {
+        for (int_t i = 0; i < ProgramConfig::GGA_run_count; i++) {
 
             Vector<int_t> part(n, 0);
             Vector<bool> visited(n, false);
