@@ -3,10 +3,12 @@
 #include "utils.hpp"
 
 #include "graph.hpp"
-#include "coarsening.hpp"
-#include "metrics.hpp"
 
-#include <queue>
+#include "coarsening.hpp"
+#include "bipartitioner.hpp"
+#include "uncoarsening.hpp"
+
+#include "metrics.hpp"
 
 class Partitioner {
 public:
@@ -37,17 +39,17 @@ public:
             return;
         }
 
-        Vector<Coarser::CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels = Coarser::getCoarseLevels(graph);
+        Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels = Coarser::getCoarseLevels(graph);
 
         const Graph<VertexWeight_t, EdgeWeight_t>& coarse_graph = levels.back().coarsed_graph;
 
         Vector<int_t> coarse_partition;
         if (ProgramConfig::partitioning_method == ProgramConfig::PartitioningMethod::GGA) {
-            coarse_partition = graphGrowingAlgorithm(coarse_graph);
+            coarse_partition = Bipartitioner::graphGrowingAlgorithm(coarse_graph);
         }
 
         for (int_t i = levels.size() - 1; i > 0; i--) {
-            coarse_partition = Coarser::propagatePartition<VertexWeight_t, EdgeWeight_t>(levels[i], coarse_partition);
+            coarse_partition = Uncoarser::propagatePartition<VertexWeight_t, EdgeWeight_t>(levels[i], coarse_partition);
         }
 
         Vector<int_t> left_part_vertices, right_part_vertices;
@@ -87,70 +89,5 @@ public:
         for (int_t i = 0; i < right_part_vertices.size(); i++) {
             partition[right_part_vertices[i]] = right_part[i];
         }
-    }
-     
-    template <typename VertexWeight_t, typename EdgeWeight_t>
-    static Vector<int_t> graphGrowingAlgorithm(
-        const Graph<VertexWeight_t, EdgeWeight_t>& graph
-    ) {
-        const int_t n = graph.n;
-
-        VertexWeight_t total_weight = graph.getSumOfVertexWeights();
-
-        VertexWeight_t ideal_weight = total_weight / 2;
-        VertexWeight_t max_allowed = (ProgramConfig::accuracy + 1.0) * ideal_weight;
-
-        Vector<int_t> best_partition;
-        EdgeWeight_t best_edge_cut;
-
-        bool found = false;
-
-        for (int_t i = 0; i < ProgramConfig::GGA_run_count; i++) {
-
-            Vector<int_t> part(n, 0);
-            Vector<bool> visited(n, false);
-
-            std::queue<int_t> q;
-
-            Vector<int_t> order = getRandomPermutation(n);
-
-            for (int_t start_V: order) {
-                if (graph.vertex_weights[start_V] <= max_allowed) {
-                    q.push(start_V);
-                    visited[start_V] = true;
-                    break;
-                }
-            }
-
-            real_t current_weight = 0;
-
-            while (!q.empty()) {
-                int_t curr_V = q.front(); q.pop();
-
-                if (current_weight + graph.vertex_weights[curr_V] > max_allowed) {
-                    continue;
-                }
-
-                part[curr_V] = 1;
-                current_weight += graph.vertex_weights[curr_V];
-
-                for (auto [next_V, w] : graph[curr_V]) {
-                    if (!visited[next_V]) {
-                        visited[next_V] = true;
-                        q.push(next_V);
-                    }
-                }
-            }
-
-            EdgeWeight_t edge_cut = PartitionMetrics::getEdgeCut(graph, part);
-
-            if (!found || edge_cut < best_edge_cut) {
-                found = true;
-                best_partition = part;
-                best_edge_cut = edge_cut;
-            }
-        }
-
-        return best_partition;
     }
 };

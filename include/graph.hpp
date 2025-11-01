@@ -7,8 +7,10 @@
 #include <unordered_map>
 
 class Partitioner;
-class PartitionMetrics;
 class Coarser;
+class Bipartitioner;
+
+class PartitionMetrics;
 
 class CoarseTest;
 
@@ -25,8 +27,10 @@ template <typename VertexWeight_t, typename EdgeWeight_t>
 class Graph {
 
 	friend class Partitioner;
-	friend class PartitionMetrics;
 	friend class Coarser;
+	friend class Bipartitioner;
+
+	friend class PartitionMetrics;
 
 	friend class CoarseTest;
 	friend class GraphTester<VertexWeight_t, EdgeWeight_t>;
@@ -121,11 +125,11 @@ private:
 		}
 	}
 
+public:
+
 	Graph() {
 
 	}
-
-public:
 
 	// Requires a matrix corresponding to an undirected graph
 	Graph(const spMtx<EdgeWeight_t>& matrix, bool ignore_eweights = false) {

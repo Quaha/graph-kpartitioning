@@ -1,5 +1,7 @@
 ../data/add20.mtx
 ../data/add32.mtx
 ../data/144.mtx
+../data/auto.mtx
+../data/cs4.mtx
 ../tests/data/test_matrix1.mtx
 ../tests/data/test_matrix2.mtx

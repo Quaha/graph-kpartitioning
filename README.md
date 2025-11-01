@@ -23,3 +23,7 @@
 - `EdgeWeight_t edge_cut` - суммарная стоимость рёбер между отличающимися частями
 
 Настройка алгоритма происходит посредством установки полей класса `ProgramConfig` в файле `config.hpp`.
+
+## Полезные ресурсы
+- The Graph Partitioning Archive: https://chriswalshaw.co.uk/partition/ - таблица рекордов разделений
+- The SuiteSparse Matrix Collection: https://sparse.tamu.edu - коллекция матриц
