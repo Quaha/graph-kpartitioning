@@ -1,6 +1,6 @@
 #include "utils.hpp"
 
-Vector<String> getFileNames(const String& folder, const String& format) {
+Vector<String> GetFileNames(const String& folder, const String& format) {
 
     Vector<String> file_names;
     for (const auto& entry : std::filesystem::directory_iterator(folder)) {
@@ -12,7 +12,7 @@ Vector<String> getFileNames(const String& folder, const String& format) {
     return file_names;
 }
 
-Vector<int_t> getRandomPermutation(int_t n) {
+Vector<int_t> GetRandomPermutation(int_t n) {
     Vector<int_t> permutation(n);
     std::iota(permutation.begin(), permutation.end(), 0);
 

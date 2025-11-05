@@ -3,16 +3,22 @@
 #include "utils.hpp"
 
 struct ProgramConfig {
-    // --- Coarsening options ---
+    // --- Coarsening methods ---
     enum class CoarseningMethod {
         RandomMatching,
-        HeavyEdgeMatching,
         LightEdgeMatching,
+        HeavyEdgeMatching,
+        HeavyCliqueMatching,
     };
 
-    // --- Partitioning options ---
-    enum class PartitioningMethod {
-        GGA,
+    // --- Bipartitioning methods ---
+    enum class BipartitioningMethod {
+        GraphGrowingAlgorithm,
+    };
+
+    // --- Uncoarsening methods ---
+    enum class UncoarseningMethod {
+        DirectMapping,
     };
 
     // --- Global parameters ---
@@ -24,8 +30,11 @@ struct ProgramConfig {
     inline static int_t coarsening_itarations_limit = 40;
     inline static int_t coarsening_vertix_count_limit = 50;
 
-    // --- Partition parameters ---
-    inline static PartitioningMethod partitioning_method = PartitioningMethod::GGA;
+    // --- Bipartitioning parameters ---
+    inline static BipartitioningMethod bipartitioning_method = BipartitioningMethod::GraphGrowingAlgorithm;
 
-    inline static int_t GGA_run_count = 10;
+    inline static int_t bipartitioning_GraphGrowingAlgorithm_launches_count = 10;
+
+    // --- Uncoarsening parameters ---
+	inline static UncoarseningMethod uncoarsening_method = UncoarseningMethod::DirectMapping;   
 };

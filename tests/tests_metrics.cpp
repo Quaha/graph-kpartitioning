@@ -14,7 +14,7 @@ class MetricsCrashTest : public ::testing::TestWithParam<String> {};
 INSTANTIATE_TEST_SUITE_P(
 	AllMtxFiles,
 	MetricsCrashTest,
-	::testing::ValuesIn(getFileNames(DATA_BASE_PATH, ".mtx"))
+	::testing::ValuesIn(GetFileNames(DATA_BASE_PATH, ".mtx"))
 );
 
 TEST_P(MetricsCrashTest, canCountEdgeCut) {

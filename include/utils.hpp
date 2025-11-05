@@ -10,12 +10,12 @@
 #include "dynamic_array.hpp"
 
 using int_t = long long;
-using real_t = long double;
+using real_t = double;
 
 inline constexpr real_t EPS = 1e-8;
 
 template <typename T> 
-using Vector = DynamicArray<T>;
+using Vector = std::vector<T>;
 
 using String = std::string;
 
@@ -32,7 +32,7 @@ using String = std::string;
  * Returns:
  * - Vector<String> - contains full paths to all matching files | ex: {"../ data/add20.mtx", "../data/add32.mtx"}
  */
-Vector<String> getFileNames(const String& folder, const String& format);
+Vector<String> GetFileNames(const String& folder, const String& format);
 
 /*
  * Generates a random permutation of integers in the range [0, n - 1].
@@ -46,4 +46,4 @@ Vector<String> getFileNames(const String& folder, const String& format);
  * Returns:
  * - Vector<int_t> - contains the shuffled sequence  | ex: {4, 2, 3, 0, 1}
  */
-Vector<int_t> getRandomPermutation(int_t n);
+Vector<int_t> GetRandomPermutation(int_t n);

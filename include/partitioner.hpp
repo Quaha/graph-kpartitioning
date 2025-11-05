@@ -14,7 +14,7 @@ class Partitioner {
 public:
 
 	template <typename VertexWeight_t, typename EdgeWeight_t>
-	static void getGraphKPartition(
+	static void GetGraphKPartition(
 		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
 		const int_t k,
 		Vector<int_t>& partition,
@@ -22,13 +22,13 @@ public:
 	) {
 
 		partition.resize(graph.n, -1);
-		recursivePartition<VertexWeight_t, EdgeWeight_t>(graph, k, partition, 0);
+		RecursivePartition<VertexWeight_t, EdgeWeight_t>(graph, k, partition, 0);
 
         edge_cut = PartitionMetrics::getEdgeCut(graph, partition);
 	}
 
     template <typename VertexWeight_t, typename EdgeWeight_t>
-    static void recursivePartition(
+    static void RecursivePartition(
         const Graph<VertexWeight_t, EdgeWeight_t>& graph,
         const int_t k,
         Vector<int_t>& partition,
@@ -39,18 +39,14 @@ public:
             return;
         }
 
-        Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels = Coarser::getCoarseLevels(graph);
+        Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels = Coarser::GetCoarseLevels(graph);
 
         const Graph<VertexWeight_t, EdgeWeight_t>& coarse_graph = levels.back().coarsed_graph;
 
         Vector<int_t> coarse_partition;
-        if (ProgramConfig::partitioning_method == ProgramConfig::PartitioningMethod::GGA) {
-            coarse_partition = Bipartitioner::graphGrowingAlgorithm(coarse_graph);
-        }
-
-        for (int_t i = levels.size() - 1; i > 0; i--) {
-            coarse_partition = Uncoarser::propagatePartition<VertexWeight_t, EdgeWeight_t>(levels[i], coarse_partition);
-        }
+   
+        Bipartitioner::GetGraphBipartition(coarse_graph, coarse_partition);
+		Uncoarser::RestorePartition<VertexWeight_t, EdgeWeight_t>(levels, coarse_partition);
 
         Vector<int_t> left_part_vertices, right_part_vertices;
         for (int_t i = 0; i < graph.n; i++) {
@@ -79,8 +75,8 @@ public:
         Vector<int_t> left_part(left_graph.n, -1);
         Vector<int_t> right_part(right_graph.n, -1);
 
-        recursivePartition<VertexWeight_t, EdgeWeight_t>(left_graph, left_k, left_part, offset);
-        recursivePartition<VertexWeight_t, EdgeWeight_t>(right_graph, right_k, right_part, offset + left_k);
+        RecursivePartition<VertexWeight_t, EdgeWeight_t>(left_graph, left_k, left_part, offset);
+        RecursivePartition<VertexWeight_t, EdgeWeight_t>(right_graph, right_k, right_part, offset + left_k);
 
         for (int_t i = 0; i < left_part_vertices.size(); i++) {
             partition[left_part_vertices[i]] = left_part[i];

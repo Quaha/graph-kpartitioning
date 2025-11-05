@@ -13,7 +13,7 @@ class Coarser {
 public:
 
 	template <typename VertexWeight_t, typename EdgeWeight_t>
-	Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> static getCoarseLevels(
+	Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> static GetCoarseLevels(
 		const Graph<VertexWeight_t, EdgeWeight_t>& graph
 	) {
 		Vector<CoarseLevel<VertexWeight_t, EdgeWeight_t>> levels;
@@ -26,7 +26,9 @@ public:
 			base_coarse_to_uncoarse[i] = Vector<int_t>(1, i);
 		}
 
-		CoarseLevel<VertexWeight_t, EdgeWeight_t> start_level(base_uncoarse_to_coarse, base_coarse_to_uncoarse, graph);
+		Vector<EdgeWeight_t> base_vertex_importance(graph.n, 0);
+
+		CoarseLevel<VertexWeight_t, EdgeWeight_t> start_level(base_uncoarse_to_coarse, base_coarse_to_uncoarse, graph, base_vertex_importance);
 
 		levels.reserve(ProgramConfig::coarsening_itarations_limit + 1);
 		levels.push_back(start_level);
@@ -35,15 +37,7 @@ public:
 
 			CoarseLevel<VertexWeight_t, EdgeWeight_t> new_level;
 
-			if (ProgramConfig::coarsening_method == ProgramConfig::CoarseningMethod::HeavyEdgeMatching) {
-				heavyEdgeMatching(levels[i].coarsed_graph, new_level);
-			}
-			else if (ProgramConfig::coarsening_method == ProgramConfig::CoarseningMethod::LightEdgeMatching) {
-				lightEdgeMatching(levels[i].coarsed_graph, new_level);
-			}
-			else if (ProgramConfig::coarsening_method == ProgramConfig::CoarseningMethod::RandomMatching) {
-				randomMatching(levels[i].coarsed_graph, new_level);
-			}
+			FillLevel(levels[i], levels[i].coarsed_graph, new_level);
 
 			levels.push_back(new_level);
 		}
@@ -51,72 +45,74 @@ public:
 		return std::move(levels);
 	}
 
-	template <typename EdgeWeight_t, typename VertexWeight_t>
-	void static randomMatching(
+	template <typename VertexWeight_t, typename EdgeWeight_t>
+	void static FillLevel(
+		const CoarseLevel<VertexWeight_t, EdgeWeight_t>& level,
+		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
+		CoarseLevel<VertexWeight_t, EdgeWeight_t>& new_level
+	) {
+		switch (ProgramConfig::coarsening_method) {
+		case ProgramConfig::CoarseningMethod::RandomMatching:
+			RandomMatching(level, graph, new_level);
+			break;
+
+		case ProgramConfig::CoarseningMethod::LightEdgeMatching:
+			LightEdgeMatching(level, graph, new_level);
+			break;
+
+		case ProgramConfig::CoarseningMethod::HeavyEdgeMatching:
+			HeavyEdgeMatching(level, graph, new_level);
+			break;
+
+		case ProgramConfig::CoarseningMethod::HeavyCliqueMatching:
+			HeavyCliqueMatching(level, graph, new_level);
+			break;
+
+		default:
+			throw std::runtime_error("Unknown coarsening method in ProgramConfig.");
+		}
+	}
+
+	template <typename VertexWeight_t, typename EdgeWeight_t>
+	void static RandomMatching(
+		const CoarseLevel<VertexWeight_t, EdgeWeight_t>& level,
 		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
 		CoarseLevel<VertexWeight_t, EdgeWeight_t>& new_level
 	) {
 
-		Vector<int_t> permutation = getRandomPermutation(graph.n);
+		Vector<int_t> permutation = GetRandomPermutation(graph.n);
 
 		Vector<int_t> matching(graph.n, -1);
+		Vector<EdgeWeight_t> matching_edge_weights(graph.n, 0);
+
 		for (int_t curr_V : permutation) {
 			if (matching[curr_V] != -1) continue;
 			for (auto [next_V, w] : graph[curr_V]) {
 				if (matching[next_V] == -1) {
 					matching[next_V] = curr_V;
 					matching[curr_V] = next_V;
+					matching_edge_weights[next_V] = w;
+					matching_edge_weights[curr_V] = w;
 					break;
 				}
 			}
 		}
 
-		processMatching(graph, new_level, matching);
+		ProcessMatching(level, graph, new_level, matching, matching_edge_weights);
 	}
 
-	template <typename EdgeWeight_t, typename VertexWeight_t>
-	void static heavyEdgeMatching(
+	template <typename VertexWeight_t, typename EdgeWeight_t>
+	void static LightEdgeMatching(
+		const CoarseLevel<VertexWeight_t, EdgeWeight_t>& level,
 		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
 		CoarseLevel<VertexWeight_t, EdgeWeight_t>& new_level
 	) {
 
-		Vector<int_t> permutation = getRandomPermutation(graph.n);
+		Vector<int_t> permutation = GetRandomPermutation(graph.n);
 
 		Vector<int_t> matching(graph.n, -1);
-		for (int_t curr_V : permutation) {
-			if (matching[curr_V] != -1) {
-				continue;
-			}
-			int_t best_V;
-			EdgeWeight_t max_W;
-			bool found = false;
+		Vector<EdgeWeight_t> matching_edge_weights(graph.n, 0);
 
-			for (auto [next_V, w] : graph[curr_V]) {
-				if (matching[next_V] == -1 && (!found || w > max_W)) {
-					max_W = w;
-					best_V = next_V;
-					found = true;
-				}
-			}
-
-			if (found) {
-				matching[best_V] = curr_V;
-				matching[curr_V] = best_V;
-			}
-		}
-
-		processMatching(graph, new_level, matching);
-	}
-
-	template <typename EdgeWeight_t, typename VertexWeight_t>
-	void static lightEdgeMatching(
-		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
-		CoarseLevel<VertexWeight_t, EdgeWeight_t>& new_level
-	) {
-
-		Vector<int_t> permutation = getRandomPermutation(graph.n);
-
-		Vector<int_t> matching(graph.n, -1);
 		for (int_t curr_V : permutation) {
 			if (matching[curr_V] != -1) {
 				continue;
@@ -136,17 +132,106 @@ public:
 			if (found) {
 				matching[best_V] = curr_V;
 				matching[curr_V] = best_V;
+				matching_edge_weights[best_V] = min_W;
+				matching_edge_weights[curr_V] = min_W;
 			}
 		}
 
-		processMatching(graph, new_level, matching);
+		ProcessMatching(level, graph, new_level, matching, matching_edge_weights);
 	}
 
-	template <typename EdgeWeight_t, typename VertexWeight_t>
-	void static processMatching(
+	template <typename VertexWeight_t, typename EdgeWeight_t>
+	void static HeavyEdgeMatching(
+		const CoarseLevel<VertexWeight_t, EdgeWeight_t>& level,
+		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
+		CoarseLevel<VertexWeight_t, EdgeWeight_t>& new_level
+	) {
+
+		Vector<int_t> permutation = GetRandomPermutation(graph.n);
+
+		Vector<int_t> matching(graph.n, -1);
+		Vector<EdgeWeight_t> matching_edge_weights(graph.n, 0);
+
+		for (int_t curr_V : permutation) {
+			if (matching[curr_V] != -1) {
+				continue;
+			}
+			int_t best_V;
+			EdgeWeight_t max_W;
+			bool found = false;
+
+			for (auto [next_V, w] : graph[curr_V]) {
+				if (matching[next_V] == -1 && (!found || w > max_W)) {
+					max_W = w;
+					best_V = next_V;
+					found = true;
+				}
+			}
+
+			if (found) {
+				matching[best_V] = curr_V;
+				matching[curr_V] = best_V;
+				matching_edge_weights[best_V] = max_W;
+				matching_edge_weights[curr_V] = max_W;
+			}
+		}
+
+		ProcessMatching(level, graph, new_level, matching, matching_edge_weights);
+	}
+
+	template <typename VertexWeight_t, typename EdgeWeight_t>
+	void static HeavyCliqueMatching(
+		const CoarseLevel<VertexWeight_t, EdgeWeight_t>& level,
+		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
+		CoarseLevel<VertexWeight_t, EdgeWeight_t>& new_level
+	) {
+
+		Vector<int_t> permutation = GetRandomPermutation(graph.n);
+
+		Vector<int_t> matching(graph.n, -1);
+		Vector<EdgeWeight_t> matching_edge_weights(graph.n, 0);
+
+		for (int_t curr_V : permutation) {
+			if (matching[curr_V] != -1) {
+				continue;
+			}
+			int_t best_V;
+			EdgeWeight_t best_F;
+			EdgeWeight_t edge_W;
+			bool found = false;
+
+			for (auto [next_V, w] : graph[curr_V]) {
+				if (matching[next_V] == -1) {
+					EdgeWeight_t total_W = level.coarsed_graph.vertex_weights[curr_V] + level.coarsed_graph.vertex_weights[next_V];
+					EdgeWeight_t F = (w + level.vertex_importance[curr_V] + level.vertex_importance[next_V]) / (total_W * (total_W - 1));
+					if (!found || F > best_F) {
+						edge_W = w;
+						best_V = next_V;
+						best_F = F;
+						found = true;
+					}
+				}
+			}
+
+			if (found) {
+				matching[best_V] = curr_V;
+				matching[curr_V] = best_V;
+				matching_edge_weights[best_V] = edge_W;
+				matching_edge_weights[curr_V] = edge_W;
+			}
+		}
+
+		ProcessMatching(level, graph, new_level, matching, matching_edge_weights);
+	}
+
+	// This function builds the coarse level based on the found matching
+	template <typename VertexWeight_t, typename EdgeWeight_t>
+	void static ProcessMatching(
+		const CoarseLevel<VertexWeight_t, EdgeWeight_t>& level,
 		const Graph<VertexWeight_t, EdgeWeight_t>&graph,
 		CoarseLevel<VertexWeight_t, EdgeWeight_t>&new_level,
-		const Vector<int_t> &matching
+		const Vector<int_t> &matching,
+		const Vector<EdgeWeight_t>& matching_edge_weights
 	) {
 		// 1. Filling coarse vectors
 
@@ -228,10 +313,23 @@ public:
 		}
 		coarsed_graph.xadj[coarsed_graph.n] = pos;
 
-		// 4. Results
+		// 4. Importance
+
+		Vector<EdgeWeight_t> vertex_importance(coarsed_graph.n, 0);
+		for (int_t curr_V = 0; curr_V < coarsed_graph.n; curr_V++) {
+			for (int_t prev_V: coarse_to_uncoarse[curr_V]) {
+				vertex_importance[curr_V] += level.vertex_importance[prev_V];
+			}
+			if (coarse_to_uncoarse[curr_V].size() == 2) {
+				vertex_importance[curr_V] += matching_edge_weights[coarse_to_uncoarse[curr_V][0]];
+			}
+		}
+
+		// 5. Results
 
 		new_level.uncoarse_to_coarse = std::move(uncoarse_to_coarse);
 		new_level.coarse_to_uncoarse = std::move(coarse_to_uncoarse);
 		new_level.coarsed_graph = std::move(coarsed_graph);
+		new_level.vertex_importance = std::move(vertex_importance);
 	}
 };

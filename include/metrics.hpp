@@ -51,7 +51,7 @@ public:
 	 * Returns:
 	 * - Vector<real_t> - output vector where i-th element stores the fraction of total weight				   | ex: {0.33, 0.33, 0.16, 0.16}
 	 */
-	template <typename EdgeWeight_t, typename VertexWeight_t>
+	template <typename VertexWeight_t, typename EdgeWeight_t>
 	static Vector<real_t> getBalances(
 		const Graph<EdgeWeight_t, VertexWeight_t>& graph,
 		const int_t k,

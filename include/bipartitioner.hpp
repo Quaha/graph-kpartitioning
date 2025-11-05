@@ -9,7 +9,23 @@ class Bipartitioner {
 public:
 
     template <typename VertexWeight_t, typename EdgeWeight_t>
-    static Vector<int_t> graphGrowingAlgorithm(
+    static void GetGraphBipartition(
+        const Graph<VertexWeight_t, EdgeWeight_t>& graph,
+        Vector<int_t>& partition
+    ) {
+        switch (ProgramConfig::bipartitioning_method) {
+        case ProgramConfig::BipartitioningMethod::GraphGrowingAlgorithm:
+            partition = GraphGrowingAlgorithm(graph);
+            break;
+
+        default:
+            throw std::runtime_error("Unknown bipartitioning method in ProgramConfig.");
+        }
+
+	}
+
+    template <typename VertexWeight_t, typename EdgeWeight_t>
+    static Vector<int_t> GraphGrowingAlgorithm(
         const Graph<VertexWeight_t, EdgeWeight_t>& graph
     ) {
         const int_t n = graph.n;
@@ -24,14 +40,14 @@ public:
 
         bool found = false;
 
-        for (int_t i = 0; i < ProgramConfig::GGA_run_count; i++) {
+        for (int_t i = 0; i < ProgramConfig::bipartitioning_GraphGrowingAlgorithm_launches_count; i++) {
 
             Vector<int_t> part(n, 0);
             Vector<bool> visited(n, false);
 
             std::queue<int_t> q;
 
-            Vector<int_t> order = getRandomPermutation(n);
+            Vector<int_t> order = GetRandomPermutation(n);
 
             for (int_t start_V : order) {
                 if (graph.vertex_weights[start_V] <= max_allowed) {

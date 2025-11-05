@@ -11,7 +11,7 @@ class CoarseTest : public ::testing::TestWithParam<std::string> {};
 INSTANTIATE_TEST_SUITE_P(
     AllMtxFiles,
     CoarseTest,
-    ::testing::ValuesIn(getFileNames(DATA_BASE_PATH, ".mtx"))
+    ::testing::ValuesIn(GetFileNames(DATA_BASE_PATH, ".mtx"))
 );
 
 TEST_P(CoarseTest, CoarseLevelsCompressionDecompression) {
@@ -21,9 +21,9 @@ TEST_P(CoarseTest, CoarseLevelsCompressionDecompression) {
 
     Coarser coarser;
 
-    EXPECT_NO_THROW(coarser.getCoarseLevels(g));
+    EXPECT_NO_THROW(coarser.GetCoarseLevels(g));
 
-    Vector<Coarser::CoarseLevel<int_t, real_t>> levels = Coarser::getCoarseLevels(g);
+    Vector<Coarser::CoarseLevel<int_t, real_t>> levels = Coarser::GetCoarseLevels(g);
 
     EXPECT_GE(levels.size(), 1);
 
