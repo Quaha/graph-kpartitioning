@@ -2,7 +2,7 @@
 
 #include "utils.hpp"
 
-struct ProgramConfig {
+namespace ProgramConfig {
     // --- Coarsening methods ---
     enum class CoarseningMethod {
         RandomMatching,
@@ -22,19 +22,19 @@ struct ProgramConfig {
     };
 
     // --- Global parameters ---
-    inline static real_t accuracy = 0.05;
+    inline real_t accuracy = 0.05_r;
 
     // --- Coarsening parameters ---
-    inline static CoarseningMethod coarsening_method = CoarseningMethod::HeavyEdgeMatching;
+    inline CoarseningMethod coarsening_method = CoarseningMethod::HeavyEdgeMatching;
 
-    inline static int_t coarsening_itarations_limit = 40;
-    inline static int_t coarsening_vertix_count_limit = 50;
+    inline int_t coarsening_itarations_limit = 40_i;
+    inline int_t coarsening_vertix_count_limit = 50_i;
 
     // --- Bipartitioning parameters ---
-    inline static BipartitioningMethod bipartitioning_method = BipartitioningMethod::GraphGrowingAlgorithm;
+    inline BipartitioningMethod bipartitioning_method = BipartitioningMethod::GraphGrowingAlgorithm;
 
-    inline static int_t bipartitioning_GraphGrowingAlgorithm_launches_count = 10;
+    inline int_t bipartitioning_GraphGrowingAlgorithm_launches_count = 10_i;
 
     // --- Uncoarsening parameters ---
-	inline static UncoarseningMethod uncoarsening_method = UncoarseningMethod::DirectMapping;   
-};
+	inline UncoarseningMethod uncoarsening_method = UncoarseningMethod::DirectMapping;   
+}

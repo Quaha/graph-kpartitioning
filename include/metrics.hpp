@@ -17,16 +17,16 @@ public:
 	 * - partition - a vector of size |V| where partition[i] indicates the part of vertex i (may be any int_t) | ex: {0, 1, 2}
 	 *
 	 * Returns:
-	 * - EdgeWeight_t - total weight of all edges crossing partition boundaries					               | ex: ...
+	 * - ew_t - total weight of all edges crossing partition boundaries					               | ex: ...
 	 */
-	template <typename VertexWeight_t, typename EdgeWeight_t>
-	static EdgeWeight_t getEdgeCut(
-		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
+	template <typename vw_t, typename ew_t>
+	static ew_t GetEdgeCut(
+		const Graph<vw_t, ew_t>& graph,
 		const Vector<int_t> partition
 	) {
-		EdgeWeight_t edge_cut = 0;
+		ew_t edge_cut = c<ew_t>(0);
 
-		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); ++curr_V) {
+		for (int_t curr_V = 0_i; curr_V < graph.getVerticesCount(); ++curr_V) {
 			for (auto [next_V, w]: graph[curr_V]) {
 				if (curr_V < next_V && partition[curr_V] != partition[next_V]) {
 					edge_cut += w;
@@ -51,21 +51,21 @@ public:
 	 * Returns:
 	 * - Vector<real_t> - output vector where i-th element stores the fraction of total weight				   | ex: {0.33, 0.33, 0.16, 0.16}
 	 */
-	template <typename VertexWeight_t, typename EdgeWeight_t>
-	static Vector<real_t> getBalances(
-		const Graph<EdgeWeight_t, VertexWeight_t>& graph,
+	template <typename vw_t, typename ew_t>
+	static Vector<real_t> GetBalances(
+		const Graph<ew_t, vw_t>& graph,
 		const int_t k,
 		const Vector<int_t>& partition
 	) {
-		Vector<real_t> balances(k, 0.0);
+		Vector<real_t> balances(k, 0.0_r);
 
-		VertexWeight_t total_W = graph.getSumOfVertexWeights();
+		vw_t total_W = graph.getSumOfVertexWeights();
 
-		for (int_t curr_V = 0; curr_V < graph.getVerticesCount(); curr_V++) {
+		for (int_t curr_V = 0_i; curr_V < graph.getVerticesCount(); ++curr_V) {
 			balances[partition[curr_V]] += static_cast<real_t>(graph.vertex_weights[curr_V]);
 		}
 
-		for (int_t curr_V = 0; curr_V < k; curr_V++) {
+		for (int_t curr_V = 0_i; curr_V < k; ++curr_V) {
 			balances[curr_V] = balances[curr_V] / total_W;
 		}
 
@@ -86,22 +86,20 @@ public:
 	 * Returns:
 	 * - real_t - the imbalance value (difference between the heaviest part and 1/k)							   | ex: 0.0833  -> 8.33% imbalance
 	 */
-	template <typename VertexWeight_t, typename EdgeWeight_t>
-	static real_t getAccuracy(
-		const Graph<VertexWeight_t, EdgeWeight_t>& graph,
+	template <typename vw_t, typename ew_t>
+	static real_t GetAccuracy(
+		const Graph<vw_t, ew_t>& graph,
 		const int_t k,
 		const Vector<int_t>& partition
 	) {
+		Vector<real_t> balances = GetBalances(graph, k, partition);
 
-		Vector<real_t> balances = getBalances(graph, k, partition);
-
-		real_t accuracy = balances[0] - 1.0 / k;
-		for (int_t curr_V = 1; curr_V < k; curr_V++) {
-			if (balances[curr_V] - 1.0 / k > accuracy) {
-				accuracy = balances[curr_V] - 1.0 / k;
+		real_t accuracy = balances[0] - 1.0_r / k;
+		for (int_t curr_V = 1_i; curr_V < k; ++curr_V) {
+			if (balances[curr_V] - 1.0_r / k > accuracy) {
+				accuracy = balances[curr_V] - 1.0_r / k;
 			}
 		}
-
 		return accuracy;
 	}
 };

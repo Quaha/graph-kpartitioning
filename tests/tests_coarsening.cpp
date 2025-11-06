@@ -23,7 +23,7 @@ TEST_P(CoarseTest, CoarseLevelsCompressionDecompression) {
 
     EXPECT_NO_THROW(coarser.GetCoarseLevels(g));
 
-    Vector<Coarser::CoarseLevel<int_t, real_t>> levels = Coarser::GetCoarseLevels(g);
+    Vector<CoarseLevel<int_t, real_t>> levels = Coarser::GetCoarseLevels(g);
 
     EXPECT_GE(levels.size(), 1);
 

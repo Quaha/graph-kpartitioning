@@ -8,9 +8,9 @@
 class Bipartitioner {
 public:
 
-    template <typename VertexWeight_t, typename EdgeWeight_t>
+    template <typename vw_t, typename ew_t>
     static void GetGraphBipartition(
-        const Graph<VertexWeight_t, EdgeWeight_t>& graph,
+        const Graph<vw_t, ew_t>& graph,
         Vector<int_t>& partition
     ) {
         switch (ProgramConfig::bipartitioning_method) {
@@ -24,25 +24,25 @@ public:
 
 	}
 
-    template <typename VertexWeight_t, typename EdgeWeight_t>
+    template <typename vw_t, typename ew_t>
     static Vector<int_t> GraphGrowingAlgorithm(
-        const Graph<VertexWeight_t, EdgeWeight_t>& graph
+        const Graph<vw_t, ew_t>& graph
     ) {
         const int_t n = graph.n;
 
-        VertexWeight_t total_weight = graph.getSumOfVertexWeights();
+        vw_t total_weight = graph.getSumOfVertexWeights();
 
-        VertexWeight_t ideal_weight = total_weight / 2;
-        VertexWeight_t max_allowed = (ProgramConfig::accuracy + 1.0) * ideal_weight;
+        vw_t ideal_weight = total_weight / c<vw_t>(2);
+        vw_t max_allowed = (ProgramConfig::accuracy + 1.0_r) * ideal_weight;
 
         Vector<int_t> best_partition;
-        EdgeWeight_t best_edge_cut;
+        ew_t best_edge_cut;
 
         bool found = false;
 
-        for (int_t i = 0; i < ProgramConfig::bipartitioning_GraphGrowingAlgorithm_launches_count; i++) {
+        for (int_t i = 0_i; i < ProgramConfig::bipartitioning_GraphGrowingAlgorithm_launches_count; ++i) {
 
-            Vector<int_t> part(n, 0);
+            Vector<int_t> partition(n, 0_i);
             Vector<bool> visited(n, false);
 
             std::queue<int_t> q;
@@ -57,7 +57,7 @@ public:
                 }
             }
 
-            real_t current_weight = 0;
+            vw_t current_weight = c<vw_t>(0);
 
             while (!q.empty()) {
                 int_t curr_V = q.front(); q.pop();
@@ -66,7 +66,7 @@ public:
                     continue;
                 }
 
-                part[curr_V] = 1;
+                partition[curr_V] = 1_i;
                 current_weight += graph.vertex_weights[curr_V];
 
                 for (auto [next_V, w] : graph[curr_V]) {
@@ -77,15 +77,14 @@ public:
                 }
             }
 
-            EdgeWeight_t edge_cut = PartitionMetrics::getEdgeCut(graph, part);
+            ew_t edge_cut = PartitionMetrics::GetEdgeCut(graph, partition);
 
             if (!found || edge_cut < best_edge_cut) {
                 found = true;
-                best_partition = part;
+                best_partition = partition;
                 best_edge_cut = edge_cut;
             }
         }
-
         return best_partition;
     }
 };

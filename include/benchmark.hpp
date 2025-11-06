@@ -8,7 +8,7 @@
 
 #include "utils.hpp"
 
-void printBenchmark() {
+void PrintBenchmark() {
 
     const String base_folder = "../data";
     const String format = ".mtx";
@@ -16,14 +16,14 @@ void printBenchmark() {
 
     Vector<int_t> ks;
 
-    ks.push_back(2);
-    ks.push_back(4);
-    ks.push_back(8);
-    ks.push_back(16);
-    ks.push_back(32);
-    ks.push_back(64);
+    ks.push_back(2_i);
+    ks.push_back(4_i);
+    ks.push_back(8_i);
+    ks.push_back(16_i);
+    ks.push_back(32_i);
+    ks.push_back(64_i);
 
-    std::cout << "accuracy (imbalance): " << ProgramConfig::accuracy * 100 << "%" << "\n";
+    std::cout << "accuracy (imbalance): " << ProgramConfig::accuracy * 100.0_r << "%" << "\n";
 
     for (const auto& path : files) {
         String filename = std::filesystem::path(path).filename().string();
@@ -37,12 +37,12 @@ void printBenchmark() {
 
         for (int_t k : ks) {
             Vector<int_t> partition;
-            real_t edge_cut = 0;
+            real_t edge_cut = 0.0_r;
 
             Partitioner::GetGraphKPartition(g, k, partition, edge_cut);
-            real_t real_accuracy = PartitionMetrics::getAccuracy(g, k, partition);
+            real_t real_accuracy = PartitionMetrics::GetAccuracy(g, k, partition);
 
-            std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100 << "%" << "\n";
+            std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100.0_r << "%" << "\n";
         }
     }
 }

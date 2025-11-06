@@ -7,10 +7,10 @@
 #include <random>
 #include <numeric>
 
-#include "dynamic_array.hpp"
+#include <cstdint>
 
-using int_t = long long;
-using real_t = double;
+#include "types.hpp"
+#include "dynamic_array.hpp"
 
 inline constexpr real_t EPS = 1e-8;
 
@@ -47,3 +47,8 @@ Vector<String> GetFileNames(const String& folder, const String& format);
  * - Vector<int_t> - contains the shuffled sequence  | ex: {4, 2, 3, 0, 1}
  */
 Vector<int_t> GetRandomPermutation(int_t n);
+
+template <typename T>
+constexpr T c(T x) noexcept {
+    return x;
+}

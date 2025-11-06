@@ -19,7 +19,7 @@ int main() {
 
     ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::HeavyCliqueMatching;
 
-    printBenchmark();
+    PrintBenchmark();
 
     return 0;
 }

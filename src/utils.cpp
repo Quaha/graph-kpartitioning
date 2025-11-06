@@ -14,7 +14,7 @@ Vector<String> GetFileNames(const String& folder, const String& format) {
 
 Vector<int_t> GetRandomPermutation(int_t n) {
     Vector<int_t> permutation(n);
-    std::iota(permutation.begin(), permutation.end(), 0);
+    std::iota(permutation.begin(), permutation.end(), 0_i);
 
     std::random_device rd;
     std::mt19937 rng(rd());
