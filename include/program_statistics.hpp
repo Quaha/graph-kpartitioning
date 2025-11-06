@@ -12,10 +12,11 @@ struct ProgramStatistics {
 	inline static Vector<real_t> maximum;
 	inline static Vector<real_t> median;
 
+	inline static Vector<real_t> denominator;
+
 	inline static Vector<real_t> max_maximum;
 	inline static Vector<real_t> max_median;
 
-	inline static Vector<real_t> denominator;
 
 	static void InitMatchingStatistics() {
 
@@ -25,10 +26,10 @@ struct ProgramStatistics {
 		maximum.resize(ProgramConfig::coarsening_itarations_limit + 1_i, 0.0_r);
 		median.resize(ProgramConfig::coarsening_itarations_limit + 1_i, 0.0_r);
 
+		denominator.resize(ProgramConfig::coarsening_itarations_limit + 1_i, 0.0_r);
+	
 		max_maximum.resize(ProgramConfig::coarsening_itarations_limit + 1_i, 0.0_r);
 		max_median.resize(ProgramConfig::coarsening_itarations_limit + 1_i, 0.0_r);
-
-		denominator.resize(ProgramConfig::coarsening_itarations_limit + 1_i, 0.0_r);
 	}
 
 	template <typename vw_t>

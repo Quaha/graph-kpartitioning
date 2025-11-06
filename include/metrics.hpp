@@ -22,7 +22,7 @@ public:
 	template <typename vw_t, typename ew_t>
 	static ew_t GetEdgeCut(
 		const Graph<vw_t, ew_t>& graph,
-		const Vector<int_t> partition
+		const Vector<int_t>		 partition
 	) {
 		ew_t edge_cut = c<ew_t>(0);
 
@@ -54,8 +54,8 @@ public:
 	template <typename vw_t, typename ew_t>
 	static Vector<real_t> GetBalances(
 		const Graph<ew_t, vw_t>& graph,
-		const int_t k,
-		const Vector<int_t>& partition
+		const int_t				 k,
+		const Vector<int_t>&	 partition
 	) {
 		Vector<real_t> balances(k, 0.0_r);
 
@@ -89,8 +89,8 @@ public:
 	template <typename vw_t, typename ew_t>
 	static real_t GetAccuracy(
 		const Graph<vw_t, ew_t>& graph,
-		const int_t k,
-		const Vector<int_t>& partition
+		const int_t				 k,
+		const Vector<int_t>&	 partition
 	) {
 		Vector<real_t> balances = GetBalances(graph, k, partition);
 

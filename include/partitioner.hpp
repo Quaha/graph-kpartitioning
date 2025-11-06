@@ -16,9 +16,9 @@ public:
 	template <typename vw_t, typename ew_t>
 	static void GetGraphKPartition(
 		const Graph<vw_t, ew_t>& graph,
-		const int_t k,
-		Vector<int_t>& partition,
-		ew_t& edge_cut
+		const int_t              k,
+		      Vector<int_t>&     partition,
+		      ew_t&              edge_cut
 	) {
 		partition.resize(graph.n, -1_i);
 		RecursivePartition<vw_t, ew_t>(graph, k, partition, 0_i);
@@ -28,9 +28,9 @@ public:
     template <typename vw_t, typename ew_t>
     static void RecursivePartition(
         const Graph<vw_t, ew_t>& graph,
-        const int_t k,
-        Vector<int_t>& partition,
-        int_t offset
+        const int_t              k,
+              Vector<int_t>&     partition,
+              int_t              offset
     ) {
         if (k == 1_i) {
             std::fill(partition.begin(), partition.end(), offset);

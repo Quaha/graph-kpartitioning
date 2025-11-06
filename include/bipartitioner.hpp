@@ -11,7 +11,7 @@ public:
     template <typename vw_t, typename ew_t>
     static void GetGraphBipartition(
         const Graph<vw_t, ew_t>& graph,
-        Vector<int_t>& partition
+              Vector<int_t>&     partition
     ) {
         switch (ProgramConfig::bipartitioning_method) {
         case ProgramConfig::BipartitioningMethod::GraphGrowingAlgorithm:

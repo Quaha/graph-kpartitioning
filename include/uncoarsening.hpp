@@ -15,7 +15,7 @@ public:
 	template <typename vw_t, typename ew_t>
 	static void RestorePartition(
 		const Vector<CoarseLevel<vw_t, ew_t>>& levels,
-		Vector<int_t>& partition
+			  Vector<int_t>&                   partition
 	) {
 		switch (ProgramConfig::uncoarsening_method) {
 		case ProgramConfig::UncoarseningMethod::DirectMapping:
@@ -32,7 +32,7 @@ public:
 	template <typename vw_t, typename ew_t>
 	static Vector<int_t> DirectMapping(
 		const CoarseLevel<vw_t, ew_t>& level,
-		const Vector<int_t>& coarse_partition
+		const Vector<int_t>&		   coarse_partition
 	) {
 		const int_t n = level.uncoarse_to_coarse.size();
 		Vector<int_t> prev_partition(n);

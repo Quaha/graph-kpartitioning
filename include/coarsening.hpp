@@ -19,7 +19,9 @@ public:
 		const Graph<vw_t, ew_t>& graph
 	) {
 		Vector<CoarseLevel<vw_t, ew_t>> levels;
+		levels.reserve(ProgramConfig::coarsening_itarations_limit + 1_i);
 
+		// Entry-level initialization
 		Vector<int_t> base_uncoarse_to_coarse(graph.n);
 		std::iota(base_uncoarse_to_coarse.begin(), base_uncoarse_to_coarse.end(), 0_i);
 
@@ -30,11 +32,7 @@ public:
 
 		Vector<ew_t> base_vertex_importance(graph.n, c<ew_t>(0));
 
-		CoarseLevel<vw_t, ew_t> start_level(base_uncoarse_to_coarse, base_coarse_to_uncoarse, graph, base_vertex_importance);
-
-		levels.reserve(ProgramConfig::coarsening_itarations_limit + 1_i);
-		levels.push_back(start_level);
-
+		levels.push_back(CoarseLevel<vw_t, ew_t>(base_uncoarse_to_coarse, base_coarse_to_uncoarse, graph, base_vertex_importance));
 
 		for (int_t i = 0_i; i < ProgramConfig::coarsening_itarations_limit && levels[i].coarsed_graph.n > ProgramConfig::coarsening_vertix_count_limit; ++i) {
 
@@ -48,15 +46,14 @@ public:
 				ProgramStatistics::UpdateMatchingStatistics(new_level.coarsed_graph.vertex_weights, i + 1_i);
 			}
 		}
-
 		return std::move(levels);
 	}
 
 	template <typename vw_t, typename ew_t>
 	void static FillLevel(
 		const CoarseLevel<vw_t, ew_t>& level,
-		const Graph<vw_t, ew_t>& graph,
-		CoarseLevel<vw_t, ew_t>& new_level
+		const Graph<vw_t, ew_t>&	   graph,
+			  CoarseLevel<vw_t, ew_t>& new_level
 	) {
 		switch (ProgramConfig::coarsening_method) {
 		case ProgramConfig::CoarseningMethod::RandomMatching:
@@ -83,8 +80,8 @@ public:
 	template <typename vw_t, typename ew_t>
 	void static RandomMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
-		const Graph<vw_t, ew_t>& graph,
-		CoarseLevel<vw_t, ew_t>& new_level
+		const Graph<vw_t, ew_t>&	   graph,
+			  CoarseLevel<vw_t, ew_t>& new_level
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
@@ -111,8 +108,8 @@ public:
 	template <typename vw_t, typename ew_t>
 	void static LightEdgeMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
-		const Graph<vw_t, ew_t>& graph,
-		CoarseLevel<vw_t, ew_t>& new_level
+		const Graph<vw_t, ew_t>&	   graph,
+			  CoarseLevel<vw_t, ew_t>& new_level
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
@@ -150,8 +147,8 @@ public:
 	template <typename vw_t, typename ew_t>
 	void static HeavyEdgeMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
-		const Graph<vw_t, ew_t>& graph,
-		CoarseLevel<vw_t, ew_t>& new_level
+		const Graph<vw_t, ew_t>&	   graph,
+		CoarseLevel<vw_t, ew_t>&	   new_level
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
@@ -189,8 +186,8 @@ public:
 	template <typename vw_t, typename ew_t>
 	void static HeavyCliqueMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
-		const Graph<vw_t, ew_t>& graph,
-		CoarseLevel<vw_t, ew_t>& new_level
+		const Graph<vw_t, ew_t>&	   graph,
+			  CoarseLevel<vw_t, ew_t>& new_level
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
@@ -235,10 +232,10 @@ public:
 	template <typename vw_t, typename ew_t>
 	void static ProcessMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
-		const Graph<vw_t, ew_t>&graph,
-		CoarseLevel<vw_t, ew_t>&new_level,
-		const Vector<int_t> &matching,
-		const Vector<ew_t>& matching_edge_weights
+		const Graph<vw_t, ew_t>&       graph,
+			  CoarseLevel<vw_t, ew_t>& new_level,
+		const Vector<int_t>&		   matching,
+		const Vector<ew_t>&			   matching_edge_weights
 	) {
 		// 1. Filling coarse vectors
 
