@@ -7,6 +7,8 @@
 #include "utils.hpp"
 #include "graph.hpp"
 
+#include "program_statistics.hpp"
+
 #include "coarse_level.hpp"
 
 class Coarser {
@@ -33,6 +35,7 @@ public:
 		levels.reserve(ProgramConfig::coarsening_itarations_limit + 1_i);
 		levels.push_back(start_level);
 
+
 		for (int_t i = 0_i; i < ProgramConfig::coarsening_itarations_limit && levels[i].coarsed_graph.n > ProgramConfig::coarsening_vertix_count_limit; ++i) {
 
 			CoarseLevel<vw_t, ew_t> new_level;
@@ -40,6 +43,10 @@ public:
 			FillLevel(levels[i], levels[i].coarsed_graph, new_level);
 
 			levels.push_back(new_level);
+
+			if (ProgramConfig::collect_mathing_statistics){
+				ProgramStatistics::UpdateMatchingStatistics(new_level.coarsed_graph.vertex_weights, i + 1_i);
+			}
 		}
 
 		return std::move(levels);

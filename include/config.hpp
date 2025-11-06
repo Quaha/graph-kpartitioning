@@ -37,4 +37,7 @@ namespace ProgramConfig {
 
     // --- Uncoarsening parameters ---
 	inline UncoarseningMethod uncoarsening_method = UncoarseningMethod::DirectMapping;   
+
+	// --- Statistics parameters ---
+	inline bool collect_mathing_statistics = false;
 }
