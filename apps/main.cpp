@@ -14,12 +14,12 @@ using namespace std;
 
 int main() {
 
-    ProgramStatistics::InitMatchingStatistics();
+    //ProgramStatistics::InitMatchingStatistics();
 
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::RandomMatching;
+    ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::HeavyCliqueMatching;
 
     PrintBenchmark();
 

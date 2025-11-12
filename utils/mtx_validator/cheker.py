@@ -1,8 +1,11 @@
+import os
+
+from pathlib import Path
 from scipy.io import mmread
 
 EPS = 1e-12
 
-def is_symmetric_matrix(path):
+def isSymmetricMatrix(path):
     A = mmread(path).tocoo()
 
     if A.shape[0] != A.shape[1]:
@@ -21,37 +24,44 @@ def is_symmetric_matrix(path):
     return True
 
 
+def findMTXFilesInDirs(directories):
+    mtx_files = []
+    for directory in directories:
+        path = Path(directory)
+        if not path.exists():
+            print(f"No such directory: {directory}")
+            continue
+        for file in path.rglob("*.mtx"):
+            mtx_files.append(file)
+    return mtx_files
+
+
 def main():
     with open("mtx_names.txt", "r", encoding="utf-8") as f:
-        names = [line.strip() for line in f if line.strip()]
+        directories = [line.strip() for line in f if line.strip()]
 
     bad_matrices = []
-
-    for name in names:
+    for path in findMTXFilesInDirs(directories):
+        print(f"Checking {path} ...", end=" ")
         try:
-            if not name.lower().endswith(".mtx"):
-                name += ".mtx"
-            print(f"Checking {name} ...", end=" ")
-
-            if is_symmetric_matrix(name):
+            if isSymmetricMatrix(path):
                 print("OK")
             else:
                 print("Incorrect!")
-                bad_matrices.append(name)
-
+                bad_matrices.append(path)
         except Exception as e:
             print(f"Error: ({e})")
-            bad_matrices.append(name)
+            bad_matrices.append(path)
 
     print("\n========")
     if bad_matrices:
         print("Bad matrices:")
-        for name in bad_matrices:
-            print(" -", name)
+        for path in bad_matrices:
+            print(" -", path)
     else:
-        print("All matrices are correct")
+        print("All matrices are correct.")
 
-    input("\n\nPress ENTER...")
+    input("\n\nPress ENTER to exit...")
 
 
 if __name__ == "__main__":
