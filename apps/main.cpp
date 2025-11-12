@@ -23,7 +23,7 @@ int main() {
 
     PrintBenchmark();
 
-    ProgramStatistics::PrintMatchingStatistics();
+    //ProgramStatistics::PrintMatchingStatistics();
 
     return 0;
 }
