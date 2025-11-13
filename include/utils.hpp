@@ -43,7 +43,16 @@ Vector<String> GetFileNames(const String& folder, const String& format);
  */
 Vector<int_t> GetRandomPermutation(int_t n);
 
-template <typename T>
-constexpr T c(T x) noexcept {
-    return x;
-}
+/*
+ * Generates a random integer number from the range [0, n - 1].
+ *
+ * This function creates an integer from 0 to n - 1
+ * using a random number generator based on std::mt19937.
+ *
+ * Parameters:
+ * - n - the upper bound	   | ex: 5
+ *
+ * Returns:
+ * - int_t - generated number  | ex: 0
+ */
+int_t GetRandomInt(int_t n);

@@ -25,3 +25,12 @@ Vector<int_t> GetRandomPermutation(int_t n) {
 
     return permutation;
 }
+
+int_t GetRandomInt(int_t n) {
+    std::random_device rd;
+    std::mt19937 rng(rd());
+
+	std::uniform_int_distribution<int_t> dist(0_i, n - 1_i);
+
+	return dist(rng);
+}

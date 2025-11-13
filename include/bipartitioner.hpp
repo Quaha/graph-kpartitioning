@@ -5,6 +5,8 @@
 #include "utils.hpp"
 #include "graph.hpp"
 
+#include "heap.hpp"
+
 class Bipartitioner {
 public:
 
@@ -16,6 +18,9 @@ public:
         switch (ProgramConfig::bipartitioning_method) {
         case ProgramConfig::BipartitioningMethod::GraphGrowingAlgorithm:
             partition = GraphGrowingAlgorithm(graph);
+            break;
+        case ProgramConfig::BipartitioningMethod::GreedyGraphGrowingAlgorithm:
+            partition = GreedyGraphGrowingAlgorithm(graph);
             break;
 
         default:
@@ -52,6 +57,7 @@ public:
             for (int_t start_V : order) {
                 if (graph.vertex_weights[start_V] <= max_allowed) {
                     q.push(start_V);
+                    partition[start_V] = 1_i;
                     visited[start_V] = true;
                     break;
                 }
@@ -74,6 +80,84 @@ public:
                         visited[next_V] = true;
                         q.push(next_V);
                     }
+                }
+            }
+
+            ew_t edge_cut = PartitionMetrics::GetEdgeCut(graph, partition);
+
+            if (!found || edge_cut < best_edge_cut) {
+                found = true;
+                best_partition = partition;
+                best_edge_cut = edge_cut;
+            }
+        }
+        return best_partition;
+    }
+
+    template <typename vw_t, typename ew_t>
+    static Vector<int_t> GreedyGraphGrowingAlgorithm(
+        const Graph<vw_t, ew_t>& graph
+    ) {
+        const int_t n = graph.n;
+
+        vw_t ideal_weight = graph.getSumOfVertexWeights() / c<vw_t>(2);
+        vw_t max_allowed = (ProgramConfig::accuracy + 1.0_r) * ideal_weight;
+
+        Vector<int_t> best_partition;
+        ew_t best_edge_cut;
+
+        bool found = false;
+
+        for (int_t i = 0_i; i < ProgramConfig::bipartitioning_GreedyGraphGrowingAlgorithm_launches_count; ++i) {
+
+            Vector<int_t> partition(n, 0_i);
+			Vector<bool> blocked(n, false);
+            
+			int_t start_V = GetRandomInt(n);
+			partition[start_V] = 1_i;
+			blocked[start_V] = true;
+
+			IndexedHeap<ew_t> heap(n); // sort values in increasing order by value
+            for (auto [next_V, w1] : graph[start_V]) {
+                ew_t inc_w = c<ew_t>(0);
+				ew_t dec_w = w1;
+                for (auto [near_V, w2]: graph[next_V]) {
+                    if (partition[near_V] == 0_i) {
+                        inc_w += w2;
+                    }
+				}
+				heap.push(inc_w - dec_w, next_V);
+            }
+
+            vw_t current_weight = c<vw_t>(0);
+
+            while (!heap.empty()) {
+                auto [priority, curr_V] = heap.extract();
+
+                blocked[curr_V] = true;
+
+                if (current_weight + graph.vertex_weights[curr_V] > max_allowed) {
+                    continue;
+                }
+
+				current_weight += graph.vertex_weights[curr_V];
+
+                partition[curr_V] = 1_i;
+                for (auto [next_V, w1] : graph[curr_V]) {
+                    if (blocked[next_V]) continue;
+                    ew_t inc_w = c<ew_t>(0);
+                    ew_t dec_w = c<ew_t>(0);
+
+                    for (auto [near_V, w2]: graph[next_V]) {
+                        if (partition[near_V] == 0_i) {
+                            inc_w += w2;
+                        }
+                        else if (partition[near_V] == 1_i) {
+                            dec_w += w2;
+                        }
+					}
+
+					heap.push(inc_w - dec_w, next_V);
                 }
             }
 

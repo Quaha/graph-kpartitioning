@@ -6,14 +6,14 @@ template <typename T>
 class DynamicArray {
 public:
 
-    using value_type = T;
+    using HeapType = T;
     using pointer = T*;
     using const_pointer = const T*;
     using reference = T&;
     using const_reference = const T&;
     using iterator = T*;
     using const_iterator = const T*;
-    using size_type = size_t;
+    using size_type = int;
 
 private:
 
@@ -28,13 +28,13 @@ public:
     explicit DynamicArray(size_type n):
         sz(n),
         cap(n),
-        data_ptr(new value_type[n]())
+        data_ptr(new HeapType[n]())
     {}
 
-    DynamicArray(size_type n, const value_type& value):
+    DynamicArray(size_type n, const HeapType& value):
         sz(n),
         cap(n),
-        data_ptr(new value_type[n])
+        data_ptr(new HeapType[n])
     {
         std::fill(data_ptr, data_ptr + sz, value);
     }
@@ -42,7 +42,7 @@ public:
     DynamicArray(const DynamicArray& other):
         sz(other.sz),
         cap(other.cap),
-        data_ptr(new value_type[other.sz])
+        data_ptr(new HeapType[other.sz])
     {
         std::copy(other.data_ptr, other.data_ptr + sz, data_ptr);
     }
@@ -64,7 +64,7 @@ public:
             sz = other.sz;
             cap = other.cap;
 
-            data_ptr = new value_type[cap];
+            data_ptr = new HeapType[cap];
             std::copy(other.data_ptr, other.data_ptr + sz, data_ptr);
         }
         return *this;
@@ -132,7 +132,7 @@ public:
 
     void resize(size_type n) {
         if (n > cap) {
-            value_type* new_data_ptr = new value_type[n]();
+            HeapType* new_data_ptr = new HeapType[n]();
 
             std::copy(data_ptr, data_ptr + sz, new_data_ptr);
             delete[] data_ptr;
@@ -144,10 +144,10 @@ public:
         sz = n;
     }
 
-    void resize(size_type n, const value_type& value) {
+    void resize(size_type n, const HeapType& value) {
 
         if (n > cap) {
-            value_type* new_data_ptr = new value_type[n]();
+            HeapType* new_data_ptr = new HeapType[n]();
 
             std::copy(data_ptr, data_ptr + sz, new_data_ptr);
             delete[] data_ptr;
@@ -164,12 +164,12 @@ public:
         sz = n;
     }
 
-    void assign(size_type n, const value_type& value) {
+    void assign(size_type n, const HeapType& value) {
         if (n > cap) {
             cap = n;
 
             delete[] data_ptr;
-            data_ptr = new value_type[n]();
+            data_ptr = new HeapType[n]();
         }
 
         sz = n;
@@ -186,7 +186,7 @@ public:
 
     void reserve(size_type new_cap) {
         if (new_cap > cap) {
-            value_type* new_data_ptr = new value_type[new_cap];
+            HeapType* new_data_ptr = new HeapType[new_cap];
 
             std::move(data_ptr, data_ptr + sz, new_data_ptr);
 
@@ -196,7 +196,7 @@ public:
         }
     }
 
-    void push_back(const value_type& value) {
+    void push_back(const HeapType& value) {
         if (sz == cap) {
             reserve(cap * 2 + 1);
         }

@@ -142,12 +142,17 @@ public:
 	}
 
 	void push(HeapType value, int_t index) {
-		if (index < 0_i || index >= capacity || index_to_position[index] != -1_i) {
+		if (index < 0_i || index >= capacity) {
 			throw std::runtime_error("Incorrect index in .push operation!");
 		}
-		data[sz] = std::make_pair(value, index);
-		index_to_position[index] = sz;
-		siftUp(sz++);
+		if (index_to_position[index] != -1_i) {
+			changePriority(value, index);
+		}
+		else {
+			data[sz] = std::make_pair(value, index);
+			index_to_position[index] = sz;
+			siftUp(sz++);
+		}
 	}
 
 	std::pair<HeapType, int_t> top() const {

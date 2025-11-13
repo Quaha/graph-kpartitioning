@@ -16,7 +16,8 @@ public:
 
 	template <typename vw_t, typename ew_t>
 	Vector<CoarseLevel<vw_t, ew_t>> static GetCoarseLevels(
-		const Graph<vw_t, ew_t>& graph
+		const Graph<vw_t, ew_t>& graph,
+		const int_t k
 	) {
 		Vector<CoarseLevel<vw_t, ew_t>> levels;
 		levels.reserve(ProgramConfig::coarsening_itarations_limit + 1_i);
@@ -38,7 +39,7 @@ public:
 
 			CoarseLevel<vw_t, ew_t> new_level;
 
-			FillLevel(levels[i], levels[i].coarsed_graph, new_level);
+			FillLevel(levels[i], levels[i].coarsed_graph, new_level, k);
 
 			levels.push_back(new_level);
 
@@ -53,23 +54,24 @@ public:
 	void static FillLevel(
 		const CoarseLevel<vw_t, ew_t>& level,
 		const Graph<vw_t, ew_t>&	   graph,
-			  CoarseLevel<vw_t, ew_t>& new_level
+			  CoarseLevel<vw_t, ew_t>& new_level,
+		const int_t                    k
 	) {
 		switch (ProgramConfig::coarsening_method) {
 		case ProgramConfig::CoarseningMethod::RandomMatching:
-			RandomMatching(level, graph, new_level);
+			RandomMatching(level, graph, new_level, k);
 			break;
 
 		case ProgramConfig::CoarseningMethod::LightEdgeMatching:
-			LightEdgeMatching(level, graph, new_level);
+			LightEdgeMatching(level, graph, new_level, k);
 			break;
 
 		case ProgramConfig::CoarseningMethod::HeavyEdgeMatching:
-			HeavyEdgeMatching(level, graph, new_level);
+			HeavyEdgeMatching(level, graph, new_level, k);
 			break;
 
 		case ProgramConfig::CoarseningMethod::HeavyCliqueMatching:
-			HeavyCliqueMatching(level, graph, new_level);
+			HeavyCliqueMatching(level, graph, new_level, k);
 			break;
 
 		default:
@@ -81,7 +83,8 @@ public:
 	void static RandomMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
 		const Graph<vw_t, ew_t>&	   graph,
-			  CoarseLevel<vw_t, ew_t>& new_level
+			  CoarseLevel<vw_t, ew_t>& new_level,
+		const int_t                    k
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
@@ -89,10 +92,15 @@ public:
 		Vector<int_t> matching(graph.n, -1_i);
 		Vector<ew_t> matching_edge_weights(graph.n, c<ew_t>(0));
 
+		vw_t max_allowed_size = graph.getSumOfVertexWeights();
+		if (!ProgramConfig::coarsening_clusterization_prohibition) {
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+		}
+
 		for (int_t curr_V : permutation) {
 			if (matching[curr_V] != -1_i) continue;
 			for (auto [next_V, w] : graph[curr_V]) {
-				if (matching[next_V] == -1_i) {
+				if (matching[next_V] == -1_i && graph.vertex_weights[curr_V] + graph.vertex_weights[next_V] <= max_allowed_size) {
 					matching[next_V] = curr_V;
 					matching[curr_V] = next_V;
 					matching_edge_weights[next_V] = w;
@@ -109,13 +117,19 @@ public:
 	void static LightEdgeMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
 		const Graph<vw_t, ew_t>&	   graph,
-			  CoarseLevel<vw_t, ew_t>& new_level
+			  CoarseLevel<vw_t, ew_t>& new_level,
+		const int_t                    k
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
 
 		Vector<int_t> matching(graph.n, -1_i);
 		Vector<ew_t> matching_edge_weights(graph.n, c<ew_t>(0));
+
+		vw_t max_allowed_size = graph.getSumOfVertexWeights();
+		if (!ProgramConfig::coarsening_clusterization_prohibition) {
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+		}
 
 		for (int_t curr_V : permutation) {
 			if (matching[curr_V] != -1_i) {
@@ -126,6 +140,7 @@ public:
 			bool found = false;
 
 			for (auto [next_V, w] : graph[curr_V]) {
+				if (graph.vertex_weights[curr_V] + graph.vertex_weights[next_V] > max_allowed_size) continue;
 				if (matching[next_V] == -1_i && (!found || w < min_W)) {
 					min_W = w;
 					best_V = next_V;
@@ -148,13 +163,19 @@ public:
 	void static HeavyEdgeMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
 		const Graph<vw_t, ew_t>&	   graph,
-		CoarseLevel<vw_t, ew_t>&	   new_level
+		CoarseLevel<vw_t, ew_t>&	   new_level,
+		const int_t                    k
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
 
 		Vector<int_t> matching(graph.n, -1_i);
 		Vector<ew_t> matching_edge_weights(graph.n, c<ew_t>(0));
+
+		vw_t max_allowed_size = graph.getSumOfVertexWeights();
+		if (!ProgramConfig::coarsening_clusterization_prohibition) {
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+		}
 
 		for (int_t curr_V : permutation) {
 			if (matching[curr_V] != -1_i) {
@@ -165,6 +186,7 @@ public:
 			bool found = false;
 
 			for (auto [next_V, w] : graph[curr_V]) {
+				if (graph.vertex_weights[curr_V] + graph.vertex_weights[next_V] > max_allowed_size) continue;
 				if (matching[next_V] == -1_i && (!found || w > max_W)) {
 					max_W = w;
 					best_V = next_V;
@@ -187,13 +209,19 @@ public:
 	void static HeavyCliqueMatching(
 		const CoarseLevel<vw_t, ew_t>& level,
 		const Graph<vw_t, ew_t>&	   graph,
-			  CoarseLevel<vw_t, ew_t>& new_level
+			  CoarseLevel<vw_t, ew_t>& new_level,
+		const int_t                    k
 	) {
 
 		Vector<int_t> permutation = GetRandomPermutation(graph.n);
 
 		Vector<int_t> matching(graph.n, -1_i);
 		Vector<ew_t> matching_edge_weights(graph.n, c<ew_t>(0));
+
+		vw_t max_allowed_size = graph.getSumOfVertexWeights();
+		if (!ProgramConfig::coarsening_clusterization_prohibition) {
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+		}
 
 		for (int_t curr_V : permutation) {
 			if (matching[curr_V] != -1_i) {
@@ -205,6 +233,7 @@ public:
 			bool found = false;
 
 			for (auto [next_V, w] : graph[curr_V]) {
+				if (graph.vertex_weights[curr_V] + graph.vertex_weights[next_V] > max_allowed_size) continue;
 				if (matching[next_V] == -1_i) {
 					ew_t total_W = level.coarsed_graph.vertex_weights[curr_V] + level.coarsed_graph.vertex_weights[next_V];
 					ew_t F = (w + level.vertex_importance[curr_V] + level.vertex_importance[next_V]) / (total_W * (total_W - c<ew_t>(1)));

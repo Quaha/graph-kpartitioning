@@ -37,7 +37,7 @@ public:
             return;
         }
 
-        Vector<CoarseLevel<vw_t, ew_t>> levels = Coarser::GetCoarseLevels(graph);
+        Vector<CoarseLevel<vw_t, ew_t>> levels = Coarser::GetCoarseLevels(graph, k);
 
         const Graph<vw_t, ew_t>& coarse_graph = levels.back().coarsed_graph;
 

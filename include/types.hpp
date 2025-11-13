@@ -10,3 +10,8 @@ constexpr real_t operator"" _r(long double x) {
 constexpr int_t operator"" _i(unsigned long long x) {
     return static_cast<int_t>(x);
 }
+
+template <typename T>
+constexpr T c(T x) noexcept {
+    return x;
+}
