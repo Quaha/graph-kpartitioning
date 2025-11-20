@@ -22,6 +22,8 @@ void PrintBenchmark() {
     ks.push_back(16_i);
     ks.push_back(32_i);
     ks.push_back(64_i);
+    ks.push_back(128_i);
+    ks.push_back(256_i);
 
     std::cout << "accuracy (imbalance): " << ProgramConfig::accuracy * 100.0_r << "%" << "\n";
 

@@ -25,7 +25,9 @@ int main() {
 
 	ProgramConfig::coarsening_clusterization_prohibition = true;
 
-    ProgramConfig::accuracy = 0.03_r;
+    ProgramConfig::coarsening_vertix_count_limit = 50_i;
+
+    ProgramConfig::accuracy = 0.05_r;
 
     PrintBenchmark();
 
