@@ -17,7 +17,7 @@ public:
 	 * - partition - a vector of size |V| where partition[i] indicates the part of vertex i (may be any int_t) | ex: {0, 1, 2}
 	 *
 	 * Returns:
-	 * - ew_t - total weight of all edges crossing partition boundaries					               | ex: ...
+	 * - ew_t - total weight of all edges crossing partition boundaries										   | ex: ...
 	 */
 	template <typename vw_t, typename ew_t>
 	static ew_t GetEdgeCut(

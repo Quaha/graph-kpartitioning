@@ -5,11 +5,10 @@
 ## Установка
 
 ### Windows
-1. Клонировать репозиторий
-2. Подгрузить сторонние библиотеки с помощью `get_external_packages_windows.bat`
-3. Собрать проект с помощью `build_vs2022x64_debug_windows.bat`
+1. Клонировать репозиторий с помощью `git clone --recursive https://github.com/Quaha/YAGkP-Lib`
+2. Собрать проект, запустив `build_vs2022x64_debug_windows.bat`
 
-После выполнения этих шагов в папке `build` будет лежать решение для Visual Studio 2022.
+После выполнения этих шагов в папке `build` будет лежать `.sln` для Microsoft Visual Studio.
 
 ## Модель исполнения / Структура кода
 

@@ -22,8 +22,6 @@ void PrintBenchmark() {
     ks.push_back(16_i);
     ks.push_back(32_i);
     ks.push_back(64_i);
-    ks.push_back(128_i);
-    ks.push_back(256_i);
 
     std::cout << "accuracy (imbalance): " << ProgramConfig::accuracy * 100.0_r << "%" << "\n";
 
@@ -39,9 +37,10 @@ void PrintBenchmark() {
 
         for (int_t k : ks) {
             Vector<int_t> partition;
-            real_t edge_cut = 0.0_r;
 
-            Partitioner::GetGraphKPartition(g, k, partition, edge_cut);
+            Partitioner::GetGraphKPartition(g, k, partition);
+            real_t edge_cut = PartitionMetrics::GetEdgeCut(g, partition);
+
             real_t real_accuracy = PartitionMetrics::GetAccuracy(g, k, partition);
 
             std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100.0_r << "%" << "\n";

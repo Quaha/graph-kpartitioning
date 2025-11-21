@@ -19,11 +19,8 @@ TEST_P(CoarseTest, CoarseLevelsCompressionDecompression) {
     String file_name = GetParam();
     Graph<int_t, real_t> g(file_name, "mtx");
 
-    Coarser coarser;
 
-    EXPECT_NO_THROW(coarser.GetCoarseLevels(g));
-
-    Vector<CoarseLevel<int_t, real_t>> levels = Coarser::GetCoarseLevels(g);
+    Vector<CoarseLevel<int_t, real_t>> levels = Coarser::GetCoarseLevels(g, 2_i);
 
     EXPECT_GE(levels.size(), 1);
 

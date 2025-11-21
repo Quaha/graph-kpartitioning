@@ -17,12 +17,10 @@ public:
 	static void GetGraphKPartition(
 		const Graph<vw_t, ew_t>& graph,
 		const int_t              k,
-		      Vector<int_t>&     partition,
-		      ew_t&              edge_cut
+		      Vector<int_t>&     partition
 	) {
 		partition.resize(graph.n, -1_i);
 		RecursivePartition<vw_t, ew_t>(graph, k, partition, 0_i);
-        edge_cut = PartitionMetrics::GetEdgeCut(graph, partition);
 	}
 
     template <typename vw_t, typename ew_t>
