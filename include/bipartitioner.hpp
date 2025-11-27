@@ -113,51 +113,64 @@ public:
             Vector<int_t> partition(n, 0_i);
 			Vector<bool> blocked(n, false);
             
-			int_t start_V = GetRandomInt(n);
-			partition[start_V] = 1_i;
-			blocked[start_V] = true;
-
+            vw_t current_weight = c<vw_t>(0);
 			IndexedHeap<ew_t> heap(n); // sort values in increasing order by value
-            for (auto [next_V, w1] : graph[start_V]) {
-                ew_t inc_w = c<ew_t>(0);
-				ew_t dec_w = w1;
-                for (auto [near_V, w2]: graph[next_V]) {
-                    if (partition[near_V] == 0_i) {
-                        inc_w += w2;
+
+			Vector<int_t> order = GetRandomPermutation(n);
+
+            bool flag = true;
+            while (flag) {
+                flag = false;
+
+                for (int_t V: order) {
+                    if (!blocked[V] && graph.getVertexWeight(V) + current_weight <= max_allowed) {
+                        flag = true;
+                        partition[V] = 1_i;
+                        blocked[V] = true;
+
+                        for (auto [next_V, w1] : graph[V]) {
+                            ew_t inc_w = c<ew_t>(0);
+                            ew_t dec_w = w1;
+                            for (auto [near_V, w2] : graph[next_V]) {
+                                if (partition[near_V] == 0_i) {
+                                    inc_w += w2;
+                                }
+                            }
+                            heap.push(inc_w - dec_w, next_V);
+                        }
+
+                        break;
                     }
 				}
-				heap.push(inc_w - dec_w, next_V);
-            }
 
-            vw_t current_weight = c<vw_t>(0);
+                while (!heap.empty()) {
+                    auto [priority, curr_V] = heap.extract();
 
-            while (!heap.empty()) {
-                auto [priority, curr_V] = heap.extract();
+                    blocked[curr_V] = true;
 
-                blocked[curr_V] = true;
+                    if (current_weight + graph.vertex_weights[curr_V] > max_allowed) {
+                        continue;
+                    }
 
-                if (current_weight + graph.vertex_weights[curr_V] > max_allowed) {
-                    continue;
-                }
+                    current_weight += graph.vertex_weights[curr_V];
 
-				current_weight += graph.vertex_weights[curr_V];
+                    partition[curr_V] = 1_i;
+                    for (auto [next_V, w1] : graph[curr_V]) {
+                        if (blocked[next_V]) continue;
+                        ew_t inc_w = c<ew_t>(0);
+                        ew_t dec_w = c<ew_t>(0);
 
-                partition[curr_V] = 1_i;
-                for (auto [next_V, w1] : graph[curr_V]) {
-                    if (blocked[next_V]) continue;
-                    ew_t inc_w = c<ew_t>(0);
-                    ew_t dec_w = c<ew_t>(0);
-
-                    for (auto [near_V, w2]: graph[next_V]) {
-                        if (partition[near_V] == 0_i) {
-                            inc_w += w2;
+                        for (auto [near_V, w2] : graph[next_V]) {
+                            if (partition[near_V] == 0_i) {
+                                inc_w += w2;
+                            }
+                            else if (partition[near_V] == 1_i) {
+                                dec_w += w2;
+                            }
                         }
-                        else if (partition[near_V] == 1_i) {
-                            dec_w += w2;
-                        }
-					}
 
-					heap.push(inc_w - dec_w, next_V);
+                        heap.push(inc_w - dec_w, next_V);
+                    }
                 }
             }
 

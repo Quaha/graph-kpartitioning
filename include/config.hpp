@@ -33,6 +33,7 @@ namespace ProgramConfig {
     inline int_t coarsening_vertix_count_limit = 100_i;
 
     inline bool coarsening_clusterization_prohibition = false;
+	inline real_t coarsening_clusterization_size_factor = 0.5_r;
 
     // --- Bipartitioning parameters ---
     inline BipartitioningMethod bipartitioning_method = BipartitioningMethod::GraphGrowingAlgorithm;
@@ -42,6 +43,8 @@ namespace ProgramConfig {
 
     // --- Uncoarsening parameters ---
 	inline UncoarseningMethod uncoarsening_method = UncoarseningMethod::DirectMapping;   
+
+	inline bool uncoarsening_KernighanLin_use_blocking = true;
 
 	// --- Statistics parameters ---
 	inline bool collect_mathing_statistics = false;

@@ -324,6 +324,10 @@ public:
 		}
 		return result;
 	}
+
+	vw_t getVertexWeight(int_t v) const {
+		return vertex_weights[v];
+	}
 };
 
 template <typename vw_t, typename ew_t>

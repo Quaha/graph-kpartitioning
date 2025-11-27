@@ -94,7 +94,7 @@ public:
 
 		vw_t max_allowed_size = graph.getSumOfVertexWeights();
 		if (!ProgramConfig::coarsening_clusterization_prohibition) {
-			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * ProgramConfig::coarsening_clusterization_size_factor);
 		}
 
 		for (int_t curr_V : permutation) {
@@ -128,7 +128,7 @@ public:
 
 		vw_t max_allowed_size = graph.getSumOfVertexWeights();
 		if (!ProgramConfig::coarsening_clusterization_prohibition) {
-			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * ProgramConfig::coarsening_clusterization_size_factor);
 		}
 
 		for (int_t curr_V : permutation) {
@@ -174,7 +174,7 @@ public:
 
 		vw_t max_allowed_size = graph.getSumOfVertexWeights();
 		if (!ProgramConfig::coarsening_clusterization_prohibition) {
-			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * ProgramConfig::coarsening_clusterization_size_factor);
 		}
 
 		for (int_t curr_V : permutation) {
@@ -220,7 +220,7 @@ public:
 
 		vw_t max_allowed_size = graph.getSumOfVertexWeights();
 		if (!ProgramConfig::coarsening_clusterization_prohibition) {
-			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * (1.0_r + ProgramConfig::accuracy));
+			max_allowed_size = c<vw_t>((c<real_t>(max_allowed_size) / c<real_t>(k)) * ProgramConfig::coarsening_clusterization_size_factor);
 		}
 
 		for (int_t curr_V : permutation) {

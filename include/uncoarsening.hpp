@@ -64,11 +64,38 @@ public:
 
 		Vector<bool> blocked(n, false);
 
+		if (ProgramConfig::uncoarsening_KernighanLin_use_blocking) {
+
+			vw_t total_weight0 = c<vw_t>(0);
+			vw_t total_weight1 = c<vw_t>(0);
+
+			for (int_t i = 0_i; i < n; ++i) {
+				if (prev_partition[i] == 0_i) {
+					total_weight0 += graph.getVertexWeight(i);
+				}
+				else {
+					total_weight1 += graph.getVertexWeight(i);
+				}
+			}
+
+			for (int_t i = 0; i < n; ++i) {
+				if (prev_partition[i] == 0_i && total_weight0 < total_weight1) {
+					blocked[i] = true;
+
+				}
+				if (prev_partition[i] == 1_i && total_weight1 < total_weight0) {
+					blocked[i] = true;
+				}
+			}
+		}
+
 		IndexedHeap<ew_t> heap(n);
 
 		for (int_t start_V = 0_i; start_V < n; ++start_V) {
 			ew_t inc_w = c<ew_t>(0);
 			ew_t dec_w = c<ew_t>(0);
+
+			if (blocked[start_V]) continue;
 
 			for (auto [next_V, w] : graph[start_V]) {
 				if (prev_partition[next_V] == prev_partition[start_V]) {
