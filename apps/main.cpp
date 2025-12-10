@@ -23,14 +23,17 @@ int main() {
 	ProgramConfig::bipartitioning_method = ProgramConfig::BipartitioningMethod::GreedyGraphGrowingAlgorithm;
 	ProgramConfig::uncoarsening_method = ProgramConfig::UncoarseningMethod::KernighanLin;
 
-	ProgramConfig::coarsening_clusterization_prohibition = false;
-	ProgramConfig::coarsening_clusterization_size_factor = 0.15_r;
+	ProgramConfig::coarsening_clusterization_prohibition = true;
+	ProgramConfig::coarsening_clusterization_size_factor = 0.9_r;
 
-    ProgramConfig::coarsening_vertix_count_limit = 500_i;
+    ProgramConfig::coarsening_vertix_count_limit = 100_i;
     ProgramConfig::coarsening_itarations_limit = 40_i;
 
 
-    ProgramConfig::accuracy = 0.01_r;
+    ProgramConfig::accuracy = 0.050_r;
+
+	ProgramConfig::post_processing_disbalance_fix = true;
+	ProgramConfig::post_processing_improvement = true;
 
     PrintBenchmark();
 

@@ -7,6 +7,7 @@
 #include "coarsening.hpp"
 #include "bipartitioner.hpp"
 #include "uncoarsening.hpp"
+#include "post_processing.hpp"
 
 #include "metrics.hpp"
 
@@ -21,6 +22,8 @@ public:
 	) {
 		partition.resize(graph.n, -1_i);
 		RecursivePartition<vw_t, ew_t>(graph, k, partition, 0_i);
+
+		PostProcessor::FixPartitionDisbalance<vw_t, ew_t>(graph, k, partition);
 	}
 
     template <typename vw_t, typename ew_t>

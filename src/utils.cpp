@@ -4,6 +4,9 @@
 
 #include "utils.hpp"
 
+std::random_device rd;
+std::mt19937 rng(rd());
+
 Vector<String> GetFileNames(const String& folder, const String& format) {
     Vector<String> file_names;
     for (const auto& entry : std::filesystem::directory_iterator(folder)) {
@@ -18,19 +21,12 @@ Vector<int_t> GetRandomPermutation(int_t n) {
     Vector<int_t> permutation(n);
     std::iota(permutation.begin(), permutation.end(), 0_i);
 
-    std::random_device rd;
-    std::mt19937 rng(rd());
-
     std::shuffle(permutation.begin(), permutation.end(), rng);
 
     return permutation;
 }
 
 int_t GetRandomInt(int_t n) {
-    std::random_device rd;
-    std::mt19937 rng(rd());
-
 	std::uniform_int_distribution<int_t> dist(0_i, n - 1_i);
-
 	return dist(rng);
 }

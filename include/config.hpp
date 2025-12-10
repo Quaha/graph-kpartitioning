@@ -38,13 +38,19 @@ namespace ProgramConfig {
     // --- Bipartitioning parameters ---
     inline BipartitioningMethod bipartitioning_method = BipartitioningMethod::GraphGrowingAlgorithm;
 
-    inline int_t bipartitioning_GraphGrowingAlgorithm_launches_count = 10_i;
-    inline int_t bipartitioning_GreedyGraphGrowingAlgorithm_launches_count = 10_i;
+    inline int_t bipartitioning_GraphGrowingAlgorithm_launches_count = 100_i;
+    inline int_t bipartitioning_GreedyGraphGrowingAlgorithm_launches_count = 100_i;
 
     // --- Uncoarsening parameters ---
 	inline UncoarseningMethod uncoarsening_method = UncoarseningMethod::DirectMapping;   
 
 	inline bool uncoarsening_KernighanLin_use_blocking = true;
+
+	// --- Post processing parameters ---
+
+    // Correctness is guaranteed only for graphs with vertex weights equal to 1
+	inline bool post_processing_disbalance_fix = true;
+	inline bool post_processing_improvement = true;
 
 	// --- Statistics parameters ---
 	inline bool collect_mathing_statistics = false;

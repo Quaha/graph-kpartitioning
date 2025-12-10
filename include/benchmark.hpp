@@ -10,6 +10,8 @@
 
 void PrintBenchmark() {
 
+	std::cout << std::fixed << std::setprecision(10);
+
     const String base_folder = "../data";
     const String format = ".mtx";
     const Vector<String> files = GetFileNames(base_folder, format);
@@ -44,6 +46,8 @@ void PrintBenchmark() {
             real_t real_accuracy = PartitionMetrics::GetAccuracy(g, k, partition);
 
             std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100.0_r << "%" << "\n";
+            std::cout << "Max part size = " << PartitionMetrics::GetMaxPartWeight(g, k, partition);
+            std::cout << " | Optimal part size = " << c<real_t>(g.getSumOfVertexWeights()) / c<real_t>(k) << "\n\n";
         }
     }
 }

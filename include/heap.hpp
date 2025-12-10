@@ -101,7 +101,7 @@ protected:
 
 	void siftUp(int_t position) {
 		while (position > 0_i) {
-			int_t parent = position / 2_i;
+			int_t parent = (position - 1_i) / 2_i;
 			if (comp(data[position].first, data[parent].first)) {
 				hswap(position, parent);
 				position = parent;

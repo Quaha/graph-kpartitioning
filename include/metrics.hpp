@@ -102,4 +102,26 @@ public:
 		}
 		return accuracy;
 	}
+
+	template <typename vw_t, typename ew_t>
+	static vw_t GetMaxPartWeight(
+		const Graph<ew_t, vw_t>& graph,
+		const int_t				 k,
+		const Vector<int_t>& partition
+	) {
+		Vector<vw_t> weights(k, 0_i);
+
+		for (int_t curr_V = 0_i; curr_V < graph.getVerticesCount(); ++curr_V) {
+			weights[partition[curr_V]] += graph.getVertexWeight(curr_V);
+		}
+
+		vw_t max_weight = 0_i;
+		for (int_t i = 0_i; i < k; ++i) {
+			if (max_weight < weights[i]) {
+				max_weight = weights[i];
+			}
+		}
+
+		return max_weight;
+	}
 };
