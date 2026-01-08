@@ -10,7 +10,7 @@ class GraphTest : public ::testing::TestWithParam<std::string> {};
 INSTANTIATE_TEST_SUITE_P(
     AllMtxFiles,
     GraphTest,
-    ::testing::ValuesIn(getFileNames(DATA_BASE_PATH, ".mtx"))
+    ::testing::ValuesIn(GetFileNames(DATA_BASE_PATH, ".mtx"))
 );
 
 TEST_P(GraphTest, canCreateGraphFromSPMTXWithEdges) {

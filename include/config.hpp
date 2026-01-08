@@ -2,25 +2,56 @@
 
 #include "utils.hpp"
 
-struct ProgramConfig {
-    // --- Coarsening options ---
+namespace ProgramConfig {
+    // --- Coarsening methods ---
     enum class CoarseningMethod {
         RandomMatching,
-        HeavyEdgeMatching,
         LightEdgeMatching,
+        HeavyEdgeMatching,
+        HeavyCliqueMatching,
     };
 
-    // --- Partitioning options ---
-    enum class PartitioningMethod {
-        GGA,
+    // --- Bipartitioning methods ---
+    enum class BipartitioningMethod {
+        GraphGrowingAlgorithm,
+        GreedyGraphGrowingAlgorithm,
+    };
+
+    // --- Uncoarsening methods ---
+    enum class UncoarseningMethod {
+        DirectMapping,
+        KernighanLin
     };
 
     // --- Global parameters ---
-    inline static CoarseningMethod coarsening_method = CoarseningMethod::HeavyEdgeMatching;
-    inline static PartitioningMethod partitioning_method = PartitioningMethod::GGA;
+    inline real_t accuracy = 0.05_r;
 
-    inline static real_t accuracy = 0.05;
+    // --- Coarsening parameters ---
+    inline CoarseningMethod coarsening_method = CoarseningMethod::HeavyEdgeMatching;
 
-    inline static int_t coarsening_itarations_limit = 40;
-    inline static int_t coarsening_vertix_count_limit = 16;
-};
+    inline int_t coarsening_itarations_limit = 40_i;
+    inline int_t coarsening_vertix_count_limit = 100_i;
+
+    inline bool coarsening_clusterization_prohibition = false;
+	inline real_t coarsening_clusterization_size_factor = 0.5_r;
+
+    // --- Bipartitioning parameters ---
+    inline BipartitioningMethod bipartitioning_method = BipartitioningMethod::GraphGrowingAlgorithm;
+
+    inline int_t bipartitioning_GraphGrowingAlgorithm_launches_count = 100_i;
+    inline int_t bipartitioning_GreedyGraphGrowingAlgorithm_launches_count = 100_i;
+
+    // --- Uncoarsening parameters ---
+	inline UncoarseningMethod uncoarsening_method = UncoarseningMethod::DirectMapping;   
+
+	inline bool uncoarsening_KernighanLin_use_blocking = true;
+
+	// --- Post processing parameters ---
+
+    // Correctness is guaranteed only for graphs with vertex weights equal to 1
+	inline bool post_processing_disbalance_fix = true;
+	inline bool post_processing_improvement = true;
+
+	// --- Statistics parameters ---
+	inline bool collect_mathing_statistics = false;
+}

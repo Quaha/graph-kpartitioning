@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # Project name
-set(PROJECT_NAME graph-kpartition)
+set(PROJECT_NAME YAGkP)
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 # Standart version

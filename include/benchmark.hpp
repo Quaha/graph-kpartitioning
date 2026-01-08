@@ -8,22 +8,24 @@
 
 #include "utils.hpp"
 
-void printBenchmark() {
+void PrintBenchmark() {
+
+	std::cout << std::fixed << std::setprecision(10);
 
     const String base_folder = "../data";
     const String format = ".mtx";
-    const Vector<String> files = getFileNames(base_folder, format);
+    const Vector<String> files = GetFileNames(base_folder, format);
 
     Vector<int_t> ks;
 
-    ks.push_back(2);
-    ks.push_back(4);
-    ks.push_back(8);
-    ks.push_back(16);
-    ks.push_back(32);
-    ks.push_back(64);
+    ks.push_back(2_i);
+    ks.push_back(4_i);
+    ks.push_back(8_i);
+    ks.push_back(16_i);
+    ks.push_back(32_i);
+    ks.push_back(64_i);
 
-    std::cout << "accuracy (imbalance): " << ProgramConfig::accuracy * 100 << "%" << "\n";
+    std::cout << "accuracy (imbalance): " << ProgramConfig::accuracy * 100.0_r << "%" << "\n";
 
     for (const auto& path : files) {
         String filename = std::filesystem::path(path).filename().string();
@@ -33,14 +35,19 @@ void printBenchmark() {
 
         Graph<int_t, real_t> g(path, "mtx", true);
 
+        std::cout << "n = " << g.getVerticesCount() << ", m = " << g.getEdgesCount() << "\n";
+
         for (int_t k : ks) {
             Vector<int_t> partition;
-            real_t edge_cut = 0;
 
-            Partitioner::getGraphKPartition(g, k, partition, edge_cut);
-            real_t real_accuracy = PartitionMetrics::getAccuracy(g, k, partition);
+            Partitioner::GetGraphKPartition(g, k, partition);
+            real_t edge_cut = PartitionMetrics::GetEdgeCut(g, partition);
 
-            std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100 << "%" << "\n";
+            real_t real_accuracy = PartitionMetrics::GetAccuracy(g, k, partition);
+
+            std::cout << "k = " << k << " | edge cut = " << edge_cut << " | real imbalance = " << real_accuracy * 100.0_r << "%" << "\n";
+            std::cout << "Max part size = " << PartitionMetrics::GetMaxPartWeight(g, k, partition);
+            std::cout << " | Optimal part size = " << c<real_t>(g.getSumOfVertexWeights()) / c<real_t>(k) << "\n\n";
         }
     }
 }

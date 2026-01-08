@@ -14,12 +14,30 @@ using namespace std;
 
 int main() {
 
+    //ProgramStatistics::InitMatchingStatistics();
+
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::RandomMatching;
+    ProgramConfig::coarsening_method = ProgramConfig::CoarseningMethod::HeavyCliqueMatching;
+	ProgramConfig::bipartitioning_method = ProgramConfig::BipartitioningMethod::GreedyGraphGrowingAlgorithm;
+	ProgramConfig::uncoarsening_method = ProgramConfig::UncoarseningMethod::KernighanLin;
 
-    printBenchmark();
+	ProgramConfig::coarsening_clusterization_prohibition = true;
+	ProgramConfig::coarsening_clusterization_size_factor = 0.9_r;
+
+    ProgramConfig::coarsening_vertix_count_limit = 100_i;
+    ProgramConfig::coarsening_itarations_limit = 40_i;
+
+
+    ProgramConfig::accuracy = 0.050_r;
+
+	ProgramConfig::post_processing_disbalance_fix = true;
+	ProgramConfig::post_processing_improvement = true;
+
+    PrintBenchmark();
+
+    //ProgramStatistics::PrintMatchingStatistics();
 
     return 0;
 }
